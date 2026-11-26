@@ -51,7 +51,7 @@ export default async function HomePage() {
               {secondary.length > 0 && (
                 <div className="une__grid">
                   {secondary.map((a) => (
-                    <ArticleCard key={a.id} article={a} variant="card" />
+                    <ArticleCard key={a.id} article={a} variant="card" showMeta={false} />
                   ))}
                 </div>
               )}
