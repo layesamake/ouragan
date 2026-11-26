@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
+import { pasteImageFromURL } from '../lib/fetchRemoteImage'
 import { slugify } from '../lib/slugify'
 
 /**
@@ -48,6 +49,11 @@ export const Media: CollectionConfig = {
   access: {
     read: () => true,
   },
+  // Remplace l'endpoint « coller une URL » de Payload (voir lib/fetchRemoteImage.ts).
+  endpoints: [
+    { path: '/paste-url', method: 'get', handler: pasteImageFromURL },
+    { path: '/paste-url/:id', method: 'get', handler: pasteImageFromURL },
+  ],
   fields: [
     {
       name: 'alt',
@@ -64,6 +70,10 @@ export const Media: CollectionConfig = {
   ],
   upload: {
     mimeTypes: ['image/*'],
+    // Une liste non vide fait passer le bouton « Ajouter un fichier » (depuis un lien) par le
+    // serveur quand le navigateur ne peut pas télécharger l'image (cas le plus courant).
+    // Le téléchargement est fait par notre endpoint /paste-url ci-dessus, pour tous les sites.
+    pasteURL: { allowList: [{ hostname: 'ouragan.sn', protocol: 'https' }] },
     // Compression automatique : les photos du téléphone (souvent 4 à 8 Mo) sont réduites
     // à 1920 px de large et converties en WebP, beaucoup plus léger.
     resizeOptions: { width: 1920, withoutEnlargement: true },
