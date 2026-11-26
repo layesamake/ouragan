@@ -1,6 +1,26 @@
 import type { CollectionConfig } from 'payload'
 
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
+import { slugify } from '../lib/slugify'
+
+/**
+ * Nom de fichier sûr pour le stockage Supabase, qui refuse certains caractères
+ * (ex. « photo.jpeg[1].png » téléchargé deux fois sous Windows, # ? % etc.).
+ * « Ngalla Sylla (1).JPEG » devient « ngalla-sylla-1.jpeg ».
+ */
+export const safeUploadName = (name: string): string => {
+  const dot = name.lastIndexOf('.')
+  const base = dot > 0 ? name.slice(0, dot) : name
+  const ext =
+    dot > 0
+      ? name
+          .slice(dot + 1)
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '')
+      : ''
+  const cleanBase = slugify(base) || `photo-${Date.now()}`
+  return ext ? `${cleanBase}.${ext}` : cleanBase
+}
 
 const WEBP = { format: 'webp', options: { quality: 78 } } as const
 
@@ -8,6 +28,13 @@ export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'Photo', plural: 'Médiathèque' },
   hooks: {
+    beforeOperation: [
+      ({ operation, req }) => {
+        if ((operation === 'create' || operation === 'update') && req.file?.name) {
+          req.file.name = safeUploadName(req.file.name)
+        }
+      },
+    ],
     afterChange: [revalidateAfterChange],
     afterDelete: [revalidateAfterDelete],
   },
