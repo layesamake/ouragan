@@ -2,7 +2,16 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { Article } from '../payload-types'
-import { asCategory, asMedia, formatComments, formatViews, imageUrl, timeAgo } from '../lib/format'
+import { PlayBadge } from './PlayBadge'
+import {
+  asCategory,
+  isVideoCategory,
+  asMedia,
+  formatComments,
+  formatViews,
+  imageUrl,
+  timeAgo,
+} from '../lib/format'
 
 type Variant = 'hero' | 'card' | 'row' | 'compact'
 
@@ -62,6 +71,9 @@ export function ArticleCard({
               sizes={SIZES[variant]}
               priority={priority}
             />
+            {isVideoCategory(category) && (
+              <PlayBadge size={variant === 'hero' ? 'lg' : big ? 'md' : 'sm'} />
+            )}
           </Link>
           {big && tag}
         </div>

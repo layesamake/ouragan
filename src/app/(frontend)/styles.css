@@ -658,6 +658,50 @@ main {
   object-fit: cover;
 }
 
+/* Bouton « lecture » en filigrane sur l'image des articles vidéo */
+.play-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  pointer-events: none;
+  transition: background 0.15s ease;
+}
+
+.play-badge svg {
+  width: 50%;
+  height: 50%;
+  margin-left: 8%;
+  fill: #fff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.play-badge--sm {
+  width: 30px;
+  height: 30px;
+  border-width: 1.5px;
+}
+
+.play-badge--lg {
+  width: 76px;
+  height: 76px;
+}
+
+.card:hover .play-badge {
+  background: rgba(236, 26, 39, 0.75);
+}
+
 .card__body {
   padding: 10px 12px 12px;
   display: flex;
