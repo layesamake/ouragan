@@ -11,7 +11,7 @@ Site d'actualités sénégalaises : **Next.js 16** (App Router) avec **Payload C
 | Collection | Rôle |
 |---|---|
 | **Articles** | Titre, surtitre, chapô, image, contenu riche, rubrique, auteur, date, cases « À la une » et « Flash info ». Brouillons et historique des versions. |
-| **Rubriques** | Nom, couleur, ordre, affichage dans le menu et sur l'accueil. |
+| **Rubriques** | Nom, couleur, ordre, affichage dans le menu et sur l'accueil. Par défaut : Politique, Économie, Société, Culture, Sports, Vidéos. |
 | **Auteurs** | Nom, fonction, photo, biographie. |
 | **Médias** | Images (redimensionnées automatiquement : vignette, carte, grand format). |
 | **Utilisateurs** | Comptes de connexion à l'administration. |
@@ -29,7 +29,7 @@ Prérequis : Node.js 22+ et pnpm.
 ```bash
 cp .env.example .env      # SQLite par défaut, rien d'autre à installer
 pnpm install
-pnpm seed                 # crée les rubriques de base
+pnpm seed                 # crée les 6 rubriques (Politique, Économie, Société, Culture, Sports, Vidéos)
 pnpm dev                  # http://localhost:3000 — admin : http://localhost:3000/admin
 ```
 

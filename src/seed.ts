@@ -7,15 +7,11 @@ import config from './payload.config'
 
 const RUBRIQUES = [
   { name: 'Politique', color: '#c1121f' },
-  { name: 'Société', color: '#27a3d9' },
   { name: 'Économie', color: '#2a9d8f' },
-  { name: 'Sport', color: '#2b9348' },
-  { name: 'International', color: '#3a5a9b' },
+  { name: 'Société', color: '#27a3d9' },
   { name: 'Culture', color: '#9d4edd' },
-  { name: 'People', color: '#e5383b' },
-  { name: 'Faits divers', color: '#6c757d' },
-  { name: 'Santé', color: '#0096c7' },
-  { name: 'Tech', color: '#f77f00' },
+  { name: 'Sports', color: '#2b9348' },
+  { name: 'Vidéos', color: '#ec1a27' },
 ]
 
 const seed = async () => {
