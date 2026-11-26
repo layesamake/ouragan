@@ -2,11 +2,14 @@ import Link from 'next/link'
 
 import { ArticleCard } from '../../components/ArticleCard'
 import { LatestList } from '../../components/LatestList'
+import { RadiosBlock } from '../../components/RadiosBlock'
 import { SectionTitle } from '../../components/SectionTitle'
 import { Ticker } from '../../components/Ticker'
 import { getArticles, getCategories } from '../../lib/queries'
 
-export const dynamic = 'force-dynamic'
+// Page mise en cache (ISR) : régénérée au plus toutes les 60 s, et immédiatement
+// quand le rédacteur publie (voir hooks/revalidate.ts).
+export const revalidate = 60
 
 export default async function HomePage() {
   const [featuredRes, latestRes, breakingRes, categories] = await Promise.all([
@@ -73,7 +76,7 @@ export default async function HomePage() {
                   color={category.color}
                 />
                 <div className="block__grid">
-                  <ArticleCard article={first} variant="card" showCategory={false} />
+                  <ArticleCard article={first} variant="card" />
                   <div className="block__list">
                     {rest.map((a) => (
                       <ArticleCard key={a.id} article={a} variant="row" showCategory={false} />
@@ -86,6 +89,7 @@ export default async function HomePage() {
 
         <aside className="layout__aside">
           <LatestList articles={latestRes.docs} />
+          <RadiosBlock />
         </aside>
       </div>
     </>

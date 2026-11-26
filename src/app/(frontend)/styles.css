@@ -301,6 +301,9 @@ main {
 .layout__main,
 .layout__aside {
   min-width: 0;
+  display: grid;
+  gap: 16px;
+  align-content: start;
 }
 
 /* ---------- Cartes d'articles ---------- */
@@ -318,6 +321,11 @@ main {
   background: var(--brand-soft);
 }
 
+.card__media-link {
+  position: absolute;
+  inset: 0;
+}
+
 .card__media img {
   object-fit: cover;
 }
@@ -331,8 +339,9 @@ main {
 
 .card__title {
   font-family: var(--font-title);
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.25;
 }
 
 .card__excerpt {
@@ -345,9 +354,13 @@ main {
   overflow: hidden;
 }
 
-.card__time {
+.card__meta {
+  margin: 2px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .kicker {
@@ -368,6 +381,25 @@ main {
 .tag:hover {
   color: var(--tag);
   text-decoration: underline;
+}
+
+/* Étiquette de rubrique posée sur l'image (cartes de l'accueil) */
+.tag--overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  padding: 6px 12px;
+  background: rgba(6, 20, 30, 0.88);
+  color: #fff;
+  font-size: 13px;
+  letter-spacing: 0.6px;
+}
+
+.tag--overlay:hover {
+  color: #fff;
+  background: var(--tag);
+  text-decoration: none;
 }
 
 /* Grande carte « À la une » */
@@ -499,6 +531,162 @@ main {
 .lede {
   color: var(--muted);
   margin: 0 0 12px;
+}
+
+/* ---------- Ouragan Radios ---------- */
+
+.radios {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.radio--current {
+  border-color: var(--live);
+  background: color-mix(in srgb, var(--live) 6%, transparent);
+}
+
+.radio__cover {
+  position: relative;
+  flex: none;
+  width: 72px;
+  height: 56px;
+  border: 0;
+  padding: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--brand-ink);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.radio__cover img {
+  object-fit: contain;
+  background: #fff;
+}
+
+.radio__initial {
+  color: #fff;
+  font-family: var(--font-title);
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.radio__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 20px;
+  background: rgba(6, 20, 30, 0.35);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  transition: background 0.15s;
+}
+
+.radio__cover:hover .radio__play,
+.radio__cover:focus-visible .radio__play,
+.radio__play.is-playing {
+  background: rgba(236, 26, 39, 0.7);
+}
+
+.radio__body {
+  min-width: 0;
+}
+
+.radio__name {
+  display: inline-block;
+  background: var(--brand);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.radio__text {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.radio__text strong {
+  color: var(--live);
+}
+
+/* Barre du lecteur, en bas de l'écran pendant l'écoute */
+.radiobar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 420px;
+  margin-left: auto;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--brand-ink);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.radiobar__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #999;
+  flex: none;
+}
+
+.radiobar__dot--playing {
+  background: var(--live);
+  animation: pulse 1.4s infinite;
+}
+
+.radiobar__dot--loading {
+  background: #f4a261;
+}
+
+.radiobar__name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+}
+
+.radiobar__name small {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.radiobar__stop {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--live);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 /* ---------- Colonne latérale ---------- */
@@ -885,4 +1073,14 @@ main {
   .rubriques__list a {
     padding: 14px 12px;
   }
+}
+
+/* Bandeau de l'aperçu en direct (visible seulement par le rédacteur) */
+.preview-banner {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: #fff4d6;
+  color: #7a5200;
+  font-size: 0.9rem;
 }

@@ -9,15 +9,26 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { ensureDefaultCategories } from './lib/defaultCategories'
+import { ensureDefaultRadios } from './lib/defaultRadios'
 import { migrations } from './migrations'
 import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
+import { Radios } from './collections/Radios'
 import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+// URL publique du bucket (Supabase Storage) : les images sont servies directement
+// par le CDN de Supabase au lieu de transiter par le serveur Node.
+const s3PublicUrl =
+  process.env.S3_PUBLIC_URL ||
+  (process.env.S3_ENDPOINT && process.env.S3_BUCKET
+    ? process.env.S3_ENDPOINT.replace('.storage.supabase.co/storage/v1/s3', '.supabase.co') +
+      `/storage/v1/object/public/${process.env.S3_BUCKET}`
+    : '')
 
 const databaseUrl = process.env.DATABASE_URL || 'file:./ouragan.db'
 
@@ -41,13 +52,37 @@ export default buildConfig({
     },
     meta: {
       titleSuffix: ' — Ouragan.sn',
+      // Favicon du back-office : la tornade du logo Ouragan.
+      icons: [
+        { rel: 'icon', type: 'image/png', url: '/icon.png' },
+        { rel: 'apple-touch-icon', type: 'image/png', url: '/icon.png' },
+      ],
+    },
+    // Garde le rédacteur connecté tant que l'onglet est ouvert.
+    autoRefresh: true,
+    // Pas d'appel à Gravatar : avatar simple, sans service externe.
+    avatar: 'default',
+    components: {
+      graphics: {
+        Logo: '/components/admin/Graphics#Logo',
+        Icon: '/components/admin/Graphics#Icon',
+      },
+      afterNavLinks: ['/components/admin/StatsNavLink#StatsNavLink'],
+      views: {
+        dashboard: { Component: '/components/admin/Dashboard#Dashboard' },
+        statistiques: {
+          Component: '/components/admin/Statistics#Statistics',
+          path: '/statistiques',
+          meta: { title: 'Statistiques' },
+        },
+      },
     },
   },
   i18n: {
     supportedLanguages: { fr },
     fallbackLanguage: 'fr',
   },
-  collections: [Articles, Categories, Authors, Media, Users],
+  collections: [Articles, Media, Categories, Authors, Radios, Users],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -59,13 +94,22 @@ export default buildConfig({
   onInit: async (payload) => {
     const { totalDocs } = await payload.count({ collection: 'categories' })
     if (totalDocs === 0) await ensureDefaultCategories(payload)
+    await ensureDefaultRadios(payload).catch((err) => payload.logger.error(err))
   },
   plugins: [
     // Images stockées dans Supabase Storage (compatible S3) quand S3_BUCKET est défini ;
     // sinon, sur le disque local (dossier /media), pratique en développement.
     s3Storage({
       enabled: Boolean(process.env.S3_BUCKET),
-      collections: { media: true },
+      collections: {
+        media: s3PublicUrl
+          ? {
+              disablePayloadAccessControl: true,
+              generateFileURL: ({ filename, prefix }) =>
+                `${s3PublicUrl}/${prefix ? `${prefix}/` : ''}${encodeURIComponent(filename)}`,
+            }
+          : true,
+      },
       bucket: process.env.S3_BUCKET || '',
       config: {
         endpoint: process.env.S3_ENDPOINT,

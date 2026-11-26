@@ -63,3 +63,9 @@ export const imageUrl = (
   // relatives pour que next/image les optimise comme fichiers locaux.
   return url ? url.replace(/^https?:\/\/[^/]+(?=\/api\/media\/)/, '') : null
 }
+
+/** « 1 Lecture », « 19 893 Lectures » */
+export function formatViews(n?: number | null): string {
+  const v = n || 0
+  return `${v.toLocaleString('fr-FR')} ${v > 1 ? 'Lectures' : 'Lecture'}`
+}

@@ -2,15 +2,25 @@ import { RichText } from '@payloadcms/richtext-lexical/react'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 import { ArticleCard } from '../../../../components/ArticleCard'
 import { LatestList } from '../../../../components/LatestList'
 import { ShareBar } from '../../../../components/ShareBar'
 import { asAuthor, asCategory, asMedia, formatDateTime, imageUrl } from '../../../../lib/format'
-import { getArticleBySlug, getArticles } from '../../../../lib/queries'
+import { formatViews } from '../../../../lib/format'
+import { getArticleBySlug, getArticlePreview, getArticles } from '../../../../lib/queries'
+import { LivePreviewRefresh } from '../../../../components/LivePreviewRefresh'
+import { ViewBeacon } from '../../../../components/ViewBeacon'
 
-export const dynamic = 'force-dynamic'
+// Page mise en cache (ISR) : régénérée au plus toutes les 60 s, et immédiatement
+// quand le rédacteur publie (voir hooks/revalidate.ts).
+export const revalidate = 60
+
+export function generateStaticParams() {
+  return []
+}
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -36,7 +46,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params
-  const article = await getArticleBySlug(slug)
+  // Aperçu en direct de l'admin : le mode « draft » de Next n'est activé que par /apercu,
+  // après vérification que le rédacteur est connecté. Les visiteurs ont la page en cache.
+  const { isEnabled: preview } = await draftMode()
+  const article = preview ? await getArticlePreview(slug) : await getArticleBySlug(slug)
   if (!article) notFound()
 
   const category = asCategory(article.category)
@@ -67,6 +80,12 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <div className="container layout">
       <article className="layout__main article">
+        {preview && (
+          <p className="preview-banner">
+            Aperçu (brouillon compris) · <a href="/apercu/quitter">quitter l’aperçu</a>
+            <LivePreviewRefresh />
+          </p>
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -96,6 +115,9 @@ export default async function ArticlePage({ params }: Props) {
             <time dateTime={article.publishedAt || undefined}>
               {formatDateTime(article.publishedAt)}
             </time>
+            {' · '}
+            {formatViews(article.views)}
+            {!preview && <ViewBeacon id={article.id} />}
           </p>
           <ShareBar url={`${siteUrl}/article/${article.slug}`} title={article.title} />
         </header>

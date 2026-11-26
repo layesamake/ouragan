@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { Article } from '../payload-types'
-import { asCategory, asMedia, imageUrl, timeAgo } from '../lib/format'
+import { asCategory, asMedia, formatViews, imageUrl, timeAgo } from '../lib/format'
 
 type Variant = 'hero' | 'card' | 'row' | 'compact'
 
@@ -30,35 +30,49 @@ export function ArticleCard({ article, variant = 'card', showCategory = true, pr
   const href = `/article/${article.slug}`
   const Title = variant === 'hero' ? 'h2' : 'h3'
 
+  const big = variant === 'hero' || variant === 'card'
+  const tag =
+    showCategory && category ? (
+      <Link
+        href={`/rubrique/${category.slug}`}
+        className={big && src ? 'tag tag--overlay' : 'tag'}
+        style={{ '--tag': category.color || undefined } as React.CSSProperties}
+      >
+        {category.name}
+      </Link>
+    ) : null
+
   return (
     <article className={`card card--${variant}`}>
       {src && (
-        <Link href={href} className="card__media" tabIndex={-1} aria-hidden="true">
-          <Image src={src} alt={media?.alt || ''} fill sizes={SIZES[variant]} priority={priority} />
-        </Link>
+        <div className="card__media">
+          <Link href={href} className="card__media-link" tabIndex={-1} aria-hidden="true">
+            <Image src={src} alt={media?.alt || ''} fill sizes={SIZES[variant]} priority={priority} />
+          </Link>
+          {big && tag}
+        </div>
       )}
       <div className="card__body">
-        {showCategory && category && (
-          <Link
-            href={`/rubrique/${category.slug}`}
-            className="tag"
-            style={{ '--tag': category.color || undefined } as React.CSSProperties}
-          >
-            {category.name}
-          </Link>
-        )}
+        {!(big && src) && tag}
         <Title className="card__title">
           <Link href={href}>
             {article.kicker && <span className="kicker">{article.kicker} · </span>}
             {article.title}
           </Link>
         </Title>
-        {(variant === 'hero' || variant === 'card') && article.excerpt && (
+        {variant === 'hero' && article.excerpt && (
           <p className="card__excerpt">{article.excerpt}</p>
         )}
-        <time className="card__time" dateTime={article.publishedAt || undefined}>
-          {timeAgo(article.publishedAt)}
-        </time>
+        <p className="card__meta">
+          {big ? (
+            <>
+              <span>{formatViews(article.views)}</span>
+              <time dateTime={article.publishedAt || undefined}>{timeAgo(article.publishedAt)}</time>
+            </>
+          ) : (
+            <time dateTime={article.publishedAt || undefined}>{timeAgo(article.publishedAt)}</time>
+          )}
+        </p>
       </div>
     </article>
   )

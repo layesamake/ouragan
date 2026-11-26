@@ -3,6 +3,7 @@ import React from 'react'
 
 import { Footer } from '../../components/Footer'
 import { Header } from '../../components/Header'
+import { RadioProvider } from '../../components/RadioPlayer'
 import './styles.css'
 
 const siteUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://ouragan.sn'
@@ -37,9 +38,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <a href="#contenu" className="skip-link">
           Aller au contenu
         </a>
-        <Header />
-        <main id="contenu">{children}</main>
-        <Footer />
+        <RadioProvider>
+          <Header />
+          <main id="contenu">{children}</main>
+          <Footer />
+        </RadioProvider>
       </body>
     </html>
   )

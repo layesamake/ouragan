@@ -1,14 +1,20 @@
 import type { CollectionConfig } from 'payload'
 
+import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
+
 import { slugField } from './slugField'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
   labels: { singular: 'Rubrique', plural: 'Rubriques' },
+  hooks: {
+    afterChange: [revalidateAfterChange],
+    afterDelete: [revalidateAfterDelete],
+  },
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'order', 'showInNav', 'showOnHome'],
-    group: 'Contenu',
+    group: 'Réglages',
   },
   defaultSort: 'order',
   access: { read: () => true },
