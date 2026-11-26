@@ -57,6 +57,16 @@ Au premier passage sur `/admin`, Payload demande de créer le compte administrat
 
 Pointer `ouragan.sn` et `www` vers l'adresse fournie par Hostinger pour le site, puis activer le SSL.
 
+### 4. Rédaction IA quotidienne (facultatif)
+
+Chaque jour à **10 h 00 GMT**, GitHub Actions (`.github/workflows/daily-news-cron.yml`) appelle `GET /api/cron/generate-news`. La route lit les derniers articles du Soleil, de l'APS, de Seneweb, de Walf NET, de SeneNews et de PressAfrik (`src/lib/newsSources.ts`), écarte les doublons, les faits divers et la presse people, puis les fait **réécrire par Claude** et les enregistre **en brouillon, sans photo**. Le rédacteur relit, ajoute la photo et publie depuis `/admin`. Chaque article cite le média d'origine et se termine par un lien « Source ».
+
+- **Hostinger** (variables d'environnement) : `ANTHROPIC_API_KEY`, `CRON_SECRET` (longue chaîne aléatoire), et facultativement `ANTHROPIC_MODEL` (par défaut `claude-haiku-5-5`).
+- **GitHub** (*Settings → Secrets and variables → Actions*) : secret `CRON_SECRET`, même valeur que sur Hostinger. Variable facultative `SITE_URL` (par défaut `https://ouragan.sn`).
+- Lancer à la main : onglet *Actions* → *Rédaction IA quotidienne* → *Run workflow*, ou :
+  `curl -H "Authorization: Bearer $CRON_SECRET" https://ouragan.sn/api/cron/generate-news`
+- Au plus 3 articles par média et 12 par passage. Le rapport JSON détaille chaque article (créé, doublon, filtré, trop court, erreur).
+
 ## Modifier le schéma (ajouter un champ…)
 
 Après une modification dans `src/collections/`, générer une migration avec une base PostgreSQL :
