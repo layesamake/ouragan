@@ -4,6 +4,7 @@ import * as migration_20261126_121417_article_views from './20261126_121417_arti
 import * as migration_20261126_124401_radios from './20261126_124401_radios'
 import * as migration_20261126_131535_comments from './20261126_131535_comments'
 import * as migration_20261126_131830_mode_live from './20261126_131830_mode_live'
+import * as migration_20261126_153638_media_alt_facultatif from './20261126_153638_media_alt_facultatif'
 
 export const migrations = [
   {
@@ -35,5 +36,10 @@ export const migrations = [
     up: migration_20261126_131830_mode_live.up,
     down: migration_20261126_131830_mode_live.down,
     name: '20261126_131830_mode_live',
+  },
+  {
+    up: migration_20261126_153638_media_alt_facultatif.up,
+    down: migration_20261126_153638_media_alt_facultatif.down,
+    name: '20261126_153638_media_alt_facultatif',
   },
 ]

@@ -1,10 +1,10 @@
-import { RichText } from '@payloadcms/richtext-lexical/react'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
+import { ArticleBody } from '../../../../components/ArticleBody'
 import { ArticleCard } from '../../../../components/ArticleCard'
 import { PlayBadge } from '../../../../components/PlayBadge'
 import { Comments } from '../../../../components/Comments'
@@ -19,7 +19,12 @@ import {
   isVideoCategory,
 } from '../../../../lib/format'
 import { formatComments, formatViews } from '../../../../lib/format'
-import { getArticleBySlug, getArticlePreview, getArticles, getComments } from '../../../../lib/queries'
+import {
+  getArticleBySlug,
+  getArticlePreview,
+  getArticles,
+  getComments,
+} from '../../../../lib/queries'
 import { LivePreviewRefresh } from '../../../../components/LivePreviewRefresh'
 import { ViewBeacon } from '../../../../components/ViewBeacon'
 
@@ -155,7 +160,7 @@ export default async function ArticlePage({ params }: Props) {
           </figure>
         )}
 
-        {article.content && <RichText data={article.content} className="prose" />}
+        {article.content && <ArticleBody data={article.content} />}
 
         <Comments articleId={article.id} comments={comments} />
 

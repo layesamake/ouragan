@@ -1,4 +1,8 @@
+import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import type { CollectionConfig } from 'payload'
+
+import { VideoBlock } from '../blocks/VideoBlock'
+import { PasteMediaFeature } from '../components/admin/editor/PasteMediaFeature'
 
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
 import { publicArticlesWhere } from '../lib/publicWhere'
@@ -89,6 +93,17 @@ export const Articles: CollectionConfig = {
       admin: { placeholder: 'Le titre de votre article' },
     },
     {
+      name: 'excerpt',
+      label: 'Chapô',
+      type: 'textarea',
+      admin: {
+        placeholder: 'L’essentiel de l’information en 1 à 3 phrases…',
+        description:
+          'Mis en valeur sous le titre, et repris quand l’article est partagé sur les réseaux.',
+        rows: 3,
+      },
+    },
+    {
       name: 'cover',
       label: 'Photo principale',
       type: 'upload',
@@ -98,10 +113,25 @@ export const Articles: CollectionConfig = {
           'Glissez-déposez une photo ici, ou cliquez pour en choisir une. Elle est compressée automatiquement.',
       },
     },
-    { name: 'content', label: 'Texte de l’article', type: 'richText' },
+    {
+      name: 'content',
+      label: 'Texte de l’article',
+      type: 'richText',
+      admin: {
+        description:
+          'Astuce : collez un lien YouTube, Facebook, TikTok… pour intégrer la vidéo, ou collez une image (Ctrl+V) pour l’insérer directement.',
+      },
+      editor: lexicalEditor({
+        features: ({ defaultFeatures }) => [
+          ...defaultFeatures,
+          BlocksFeature({ blocks: [VideoBlock] }),
+          PasteMediaFeature(),
+        ],
+      }),
+    },
     {
       type: 'collapsible',
-      label: 'Surtitre et résumé (facultatif)',
+      label: 'Surtitre (facultatif)',
       admin: { initCollapsed: true },
       fields: [
         {
@@ -110,15 +140,6 @@ export const Articles: CollectionConfig = {
           type: 'text',
           admin: {
             description: 'Petit mot au-dessus du titre (ex. : EXCLUSIF, VIDÉO, URGENT).',
-          },
-        },
-        {
-          name: 'excerpt',
-          label: 'Résumé (chapô)',
-          type: 'textarea',
-          admin: {
-            description:
-              '1 à 3 phrases, affichées sous le titre et quand l’article est partagé sur les réseaux.',
           },
         },
       ],
