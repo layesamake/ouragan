@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     articles: Article;
+    comments: Comment;
     lives: Live;
     'live-entries': LiveEntry;
     media: Media;
@@ -83,6 +84,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
+    comments: CommentsSelect<false> | CommentsSelect<true>;
     lives: LivesSelect<false> | LivesSelect<true>;
     'live-entries': LiveEntriesSelect<false> | LiveEntriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -177,6 +179,7 @@ export interface Article {
    */
   publishedAt?: string | null;
   views?: number | null;
+  commentsCount?: number | null;
   author?: (number | null) | Author;
   /**
    * Généré automatiquement si laissé vide.
@@ -277,6 +280,22 @@ export interface Author {
   role?: string | null;
   photo?: (number | null) | Media;
   bio?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Les commentaires des lecteurs n’apparaissent sur le site qu’une fois « Validé ». Pour en valider plusieurs : cochez-les, puis « Modifier » → Statut.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments".
+ */
+export interface Comment {
+  id: number;
+  content: string;
+  name: string;
+  status: 'pending' | 'approved' | 'rejected';
+  article?: (number | null) | Article;
+  ipHash?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -402,6 +421,10 @@ export interface PayloadLockedDocument {
         value: number | Article;
       } | null)
     | ({
+        relationTo: 'comments';
+        value: number | Comment;
+      } | null)
+    | ({
         relationTo: 'lives';
         value: number | Live;
       } | null)
@@ -486,11 +509,25 @@ export interface ArticlesSelect<T extends boolean = true> {
   breaking?: T;
   publishedAt?: T;
   views?: T;
+  commentsCount?: T;
   author?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments_select".
+ */
+export interface CommentsSelect<T extends boolean = true> {
+  content?: T;
+  name?: T;
+  status?: T;
+  article?: T;
+  ipHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

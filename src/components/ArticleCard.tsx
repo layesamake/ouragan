@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { Article } from '../payload-types'
-import { asCategory, asMedia, formatViews, imageUrl, timeAgo } from '../lib/format'
+import { asCategory, asMedia, formatComments, formatViews, imageUrl, timeAgo } from '../lib/format'
 
 type Variant = 'hero' | 'card' | 'row' | 'compact'
 
@@ -66,7 +66,9 @@ export function ArticleCard({ article, variant = 'card', showCategory = true, pr
         <p className="card__meta">
           {big ? (
             <>
-              <span>{formatViews(article.views)}</span>
+              <span>
+                {formatViews(article.views)} · {formatComments(article.commentsCount)}
+              </span>
               <time dateTime={article.publishedAt || undefined}>{timeAgo(article.publishedAt)}</time>
             </>
           ) : (

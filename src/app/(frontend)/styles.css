@@ -1217,6 +1217,177 @@ main {
   border: 1px solid var(--line);
 }
 
+/* ---------- Commentaires ---------- */
+
+.comments {
+  margin-top: 32px;
+}
+
+.comments h2 {
+  font-family: var(--font-title);
+  font-size: 18px;
+  text-transform: uppercase;
+  border-bottom: 3px solid var(--brand);
+  padding-bottom: 6px;
+  margin: 0 0 12px;
+}
+
+.comments__count {
+  color: var(--muted);
+  font-size: 14px;
+  text-transform: none;
+  font-weight: 400;
+}
+
+.comments__empty {
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+
+.comments__list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.comment {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.comment__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.comment__head time {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.comment__avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.comment__body {
+  margin: 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+.comment-form {
+  display: grid;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.comment-form__field {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.comment-form__field input,
+.comment-form__field textarea {
+  font: inherit;
+  font-weight: 400;
+  font-size: 16px; /* évite le zoom automatique sur iPhone */
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+}
+
+.comment-form__field input:focus,
+.comment-form__field textarea:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+.comment-form__trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.comment-form__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.comment-form__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.comment-form .button {
+  border: 0;
+  border-radius: 6px;
+  background: var(--live);
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.comment-form .button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.comment-form__error {
+  margin: 0;
+  color: var(--live);
+  font-size: 14px;
+}
+
+.comment-form__done {
+  background: var(--brand-soft);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin: 0;
+}
+
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--brand-dark);
+  text-decoration: underline;
+  font: inherit;
+  cursor: pointer;
+}
+
 /* ---------- Pagination, boutons ---------- */
 
 .pagination {

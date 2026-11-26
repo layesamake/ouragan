@@ -6,6 +6,7 @@ import {
   ADMIN,
   NEW_ARTICLE_URL,
   NEW_MEDIA_URL,
+  PENDING_COMMENTS_URL,
   categoryName,
   editArticleURL,
   formatNumber,
@@ -81,6 +82,15 @@ export async function Dashboard({ payload, user }: Props) {
         </Link>
         <Link href={NEW_MEDIA_URL} className="ouragan-action">
           <span aria-hidden="true">📷</span> Ajouter une photo
+        </Link>
+        <Link
+          href={PENDING_COMMENTS_URL}
+          className={`ouragan-action${data.pendingComments > 0 ? ' ouragan-action--alert' : ''}`}
+        >
+          <span aria-hidden="true">💬</span>{' '}
+          {data.pendingComments > 0
+            ? `${formatNumber(data.pendingComments)} commentaire${data.pendingComments > 1 ? 's' : ''} à valider`
+            : 'Commentaires'}
         </Link>
         <a href="/" target="_blank" rel="noopener noreferrer" className="ouragan-action">
           <span aria-hidden="true">🌐</span> Voir le site

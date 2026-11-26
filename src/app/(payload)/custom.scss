@@ -124,6 +124,12 @@ html[data-theme='dark'] {
   padding: 14px 28px;
 }
 
+.ouragan-action--alert {
+  border-color: var(--ouragan-red);
+  color: var(--ouragan-red) !important;
+  font-weight: 700;
+}
+
 .ouragan-tiles {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
