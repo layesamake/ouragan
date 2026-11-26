@@ -6,18 +6,48 @@ import type { Article, Category } from '../payload-types'
 
 export const getClient = cache(async () => getPayload({ config: configPromise }))
 
+/**
+ * Pendant `next build`, la base peut être injoignable (build local sans base) :
+ * on rend alors une page vide, qui sera régénérée dès la première visite (ISR).
+ */
+export async function buildSafe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+  if (process.env.NEXT_PHASE !== 'phase-production-build') return fn()
+  try {
+    return await fn()
+  } catch (err) {
+    console.warn('[build] base injoignable, page générée vide :', (err as Error).message)
+    return fallback
+  }
+}
+
+const emptyPage = (limit: number, page: number) => ({
+  docs: [] as Article[],
+  totalDocs: 0,
+  limit,
+  totalPages: 0,
+  page,
+  pagingCounter: 0,
+  hasPrevPage: false,
+  hasNextPage: false,
+  prevPage: null,
+  nextPage: null,
+})
+
 const PUBLISHED = { _status: { equals: 'published' } } as const
 
-export const getCategories = cache(async (): Promise<Category[]> => {
-  const payload = await getClient()
-  const res = await payload.find({
-    collection: 'categories',
-    sort: 'order',
-    limit: 50,
-    depth: 0,
-  })
-  return res.docs
-})
+export const getCategories = cache(
+  async (): Promise<Category[]> =>
+    buildSafe(async () => {
+      const payload = await getClient()
+      const res = await payload.find({
+        collection: 'categories',
+        sort: 'order',
+        limit: 50,
+        depth: 0,
+      })
+      return res.docs
+    }, []),
+)
 
 export const getCategoryBySlug = cache(async (slug: string): Promise<Category | null> => {
   const payload = await getClient()
@@ -47,21 +77,26 @@ export const getArticles = async ({
   breaking,
   excludeIds,
 }: ListOptions = {}) => {
-  const payload = await getClient()
+  const payload = await buildSafe(() => getClient(), null)
+  if (!payload) return emptyPage(limit, page)
   const and: Record<string, unknown>[] = [PUBLISHED]
   if (categoryId !== undefined) and.push({ category: { equals: categoryId } })
   if (featured !== undefined) and.push({ featured: { equals: featured } })
   if (breaking !== undefined) and.push({ breaking: { equals: breaking } })
   if (excludeIds?.length) and.push({ id: { not_in: excludeIds } })
 
-  return payload.find({
-    collection: 'articles',
-    where: { and } as never,
-    sort: '-publishedAt',
-    limit,
-    page,
-    depth: 1,
-  })
+  return buildSafe(
+    () =>
+      payload.find({
+        collection: 'articles',
+        where: { and } as never,
+        sort: '-publishedAt',
+        limit,
+        page,
+        depth: 1,
+      }),
+    emptyPage(limit, page),
+  )
 }
 
 export const getArticleBySlug = cache(async (slug: string): Promise<Article | null> => {
@@ -75,17 +110,3 @@ export const getArticleBySlug = cache(async (slug: string): Promise<Article | nu
   return res.docs[0] ?? null
 })
 
-/** Ajoute une lecture à l'article (écriture directe en base : pas de nouvelle version). */
-export async function incrementViews(article: { id: number | string; views?: number | null }) {
-  try {
-    const payload = await getClient()
-    await payload.db.updateOne({
-      collection: 'articles',
-      id: article.id,
-      data: { views: (article.views || 0) + 1 },
-      returning: false,
-    })
-  } catch (err) {
-    console.error('incrementViews', err)
-  }
-}

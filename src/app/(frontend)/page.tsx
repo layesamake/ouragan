@@ -6,7 +6,9 @@ import { SectionTitle } from '../../components/SectionTitle'
 import { Ticker } from '../../components/Ticker'
 import { getArticles, getCategories } from '../../lib/queries'
 
-export const dynamic = 'force-dynamic'
+// Page mise en cache (ISR) : régénérée au plus toutes les 60 s, et immédiatement
+// quand le rédacteur publie (voir hooks/revalidate.ts).
+export const revalidate = 60
 
 export default async function HomePage() {
   const [featuredRes, latestRes, breakingRes, categories] = await Promise.all([

@@ -19,6 +19,15 @@ import { Users } from './collections/Users'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+// URL publique du bucket (Supabase Storage) : les images sont servies directement
+// par le CDN de Supabase au lieu de transiter par le serveur Node.
+const s3PublicUrl =
+  process.env.S3_PUBLIC_URL ||
+  (process.env.S3_ENDPOINT && process.env.S3_BUCKET
+    ? process.env.S3_ENDPOINT.replace('.storage.supabase.co/storage/v1/s3', '.supabase.co') +
+      `/storage/v1/object/public/${process.env.S3_BUCKET}`
+    : '')
+
 const databaseUrl = process.env.DATABASE_URL || 'file:./ouragan.db'
 
 // DATABASE_URL commençant par "file:" => SQLite (développement local),
@@ -41,6 +50,11 @@ export default buildConfig({
     },
     meta: {
       titleSuffix: ' — Ouragan.sn',
+      // Favicon du back-office : la tornade du logo Ouragan.
+      icons: [
+        { rel: 'icon', type: 'image/png', url: '/icon.png' },
+        { rel: 'apple-touch-icon', type: 'image/png', url: '/icon.png' },
+      ],
     },
   },
   i18n: {
@@ -65,7 +79,15 @@ export default buildConfig({
     // sinon, sur le disque local (dossier /media), pratique en développement.
     s3Storage({
       enabled: Boolean(process.env.S3_BUCKET),
-      collections: { media: true },
+      collections: {
+        media: s3PublicUrl
+          ? {
+              disablePayloadAccessControl: true,
+              generateFileURL: ({ filename, prefix }) =>
+                `${s3PublicUrl}/${prefix ? `${prefix}/` : ''}${encodeURIComponent(filename)}`,
+            }
+          : true,
+      },
       bucket: process.env.S3_BUCKET || '',
       config: {
         endpoint: process.env.S3_ENDPOINT,

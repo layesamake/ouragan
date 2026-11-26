@@ -1,10 +1,16 @@
 import type { CollectionConfig } from 'payload'
 
+import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
+
 import { slugField } from './slugField'
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
   labels: { singular: 'Article', plural: 'Articles' },
+  hooks: {
+    afterChange: [revalidateAfterChange],
+    afterDelete: [revalidateAfterDelete],
+  },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'publishedAt', '_status', 'featured'],
@@ -13,6 +19,32 @@ export const Articles: CollectionConfig = {
     preview: (doc) => (doc?.slug ? `/article/${doc.slug}` : null),
   },
   defaultSort: '-publishedAt',
+  endpoints: [
+    {
+      // POST /api/articles/:id/view — appelé par le navigateur à l'ouverture d'un article.
+      path: '/:id/view',
+      method: 'post',
+      handler: async (req) => {
+        const id = Number(req.routeParams?.id)
+        if (!Number.isInteger(id) || id <= 0) return Response.json({ ok: false }, { status: 400 })
+        const doc = await req.payload.db.findOne<{ id: number; views?: number | null }>({
+          collection: 'articles',
+          where: { and: [{ id: { equals: id } }, { _status: { equals: 'published' } }] },
+          req,
+        })
+        if (!doc) return Response.json({ ok: false }, { status: 404 })
+        // Écriture directe en base : ni hooks, ni nouvelle version, ni vidage du cache.
+        await req.payload.db.updateOne({
+          collection: 'articles',
+          id,
+          data: { views: (doc.views || 0) + 1 },
+          returning: false,
+          req,
+        })
+        return Response.json({ ok: true })
+      },
+    },
+  ],
   versions: {
     drafts: { autosave: { interval: 2000 } },
     maxPerDoc: 20,

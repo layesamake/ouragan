@@ -1,10 +1,16 @@
 import type { CollectionConfig } from 'payload'
 
+import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
+
 import { slugField } from './slugField'
 
 export const Authors: CollectionConfig = {
   slug: 'authors',
   labels: { singular: 'Auteur', plural: 'Auteurs' },
+  hooks: {
+    afterChange: [revalidateAfterChange],
+    afterDelete: [revalidateAfterDelete],
+  },
   admin: {
     useAsTitle: 'name',
     group: 'Contenu',
