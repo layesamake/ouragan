@@ -14,6 +14,8 @@ export type RewriteResult =
   | {
       skip: false
       kicker: string
+      /** Recherches de photo (en anglais), de la plus précise à la plus large. */
+      imageQueries: string[]
       title: string
       excerpt: string
       categoryId: number
@@ -50,10 +52,13 @@ RÉDACTION
 - Chapô : l'essentiel de l'information en deux phrases.
 - Surtitre : un ou deux mots en majuscules (ex. POLITIQUE, ÉCONOMIE, DIPLOMATIE, JUSTICE, SANTÉ).
 - Rubrique : l'id de la rubrique la plus pertinente dans la liste fournie.
+- Photo : 2 ou 3 recherches EN ANGLAIS pour une banque de photos libres, de la plus précise à la plus large
+  (ex. ["Dakar parliament", "african parliament", "government meeting"]). Décris une scène ou un objet
+  générique (lieu, activité, symbole), jamais une personne nommée : la banque ne contient pas de photos d'actualité.
 
 FORMAT DE RÉPONSE
 Réponds uniquement par un objet JSON, sans texte autour ni balises Markdown :
-{"skip": false, "reason": null, "kicker": "…", "title": "…", "excerpt": "…", "categoryId": 1, "blocks": [{"type": "paragraph", "text": "…"}, {"type": "heading", "text": "…"}, {"type": "paragraph", "text": "…"}]}
+{"skip": false, "reason": null, "kicker": "…", "title": "…", "excerpt": "…", "categoryId": 1, "imageQueries": ["…", "…"], "blocks": [{"type": "paragraph", "text": "…"}, {"type": "heading", "text": "…"}, {"type": "paragraph", "text": "…"}]}
 Pour rejeter : {"skip": true, "reason": "…"}`
 
 /** Extrait l'objet JSON de la réponse, même entouré de ```json … ``` ou de texte. */
@@ -130,6 +135,9 @@ ${sourceText}
     title: title.slice(0, 120),
     excerpt: str(data.excerpt),
     categoryId: Number(data.categoryId),
+    imageQueries: Array.isArray(data.imageQueries)
+      ? data.imageQueries.map(str).filter(Boolean).slice(0, 3)
+      : [],
     blocks,
   }
 }

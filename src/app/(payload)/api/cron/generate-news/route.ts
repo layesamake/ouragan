@@ -4,6 +4,7 @@ import type { Payload } from 'payload'
 
 import { ensureDefaultCategories } from '@/lib/defaultCategories'
 import { blocksToLexical } from '@/lib/lexicalFormatter'
+import { findCoverImage } from '@/lib/newsImages'
 import {
   collectSource,
   extractArticleText,
@@ -19,7 +20,8 @@ import { slugify } from '@/lib/slugify'
  * GET /api/cron/generate-news — rédaction IA quotidienne.
  * Lit les derniers articles de 6 médias sénégalais, écarte les doublons et les
  * faits divers, les fait réécrire par Claude et les enregistre en BROUILLON
- * (sans photo) pour relecture dans /admin.
+ * pour relecture dans /admin, avec une photo libre de droits (Pexels) si
+ * PEXELS_API_KEY est définie. Les photos des médias sources ne sont jamais reprises.
  * Protégée par l'en-tête « Authorization: Bearer <CRON_SECRET> ».
  */
 export const dynamic = 'force-dynamic'
@@ -39,6 +41,8 @@ type Detail = {
   status: 'created' | 'duplicate' | 'filtered' | 'too_short' | 'error' | 'not_processed'
   reason?: string
   id?: number
+  /** Photo libre ajoutée (id de la médiathèque), ou raison de son absence. */
+  cover?: number | string
 }
 
 function isAuthorized(req: Request): boolean {
@@ -124,7 +128,9 @@ export async function GET(req: Request): Promise<Response> {
     skippedTooShort: 0,
     notProcessed: 0,
     errors: 0,
+    withCover: 0,
   }
+  const usedPhotoIds = new Set<number>()
   const details: Detail[] = []
   const sources: {
     source: string
@@ -195,6 +201,20 @@ export async function GET(req: Request): Promise<Response> {
     }
     summary.created++ // réservé avant l'écriture, pour respecter le plafond entre médias
     try {
+      // Photo libre de droits (Pexels) ; son absence n'empêche pas de créer le brouillon.
+      let cover: number | null = null
+      let coverNote: string | undefined
+      try {
+        cover = await findCoverImage(payload, {
+          queries: result.imageQueries,
+          alt: result.title,
+          usedIds: usedPhotoIds,
+        })
+        if (!cover)
+          coverNote = process.env.PEXELS_API_KEY ? 'aucune photo trouvée' : 'PEXELS_API_KEY absente'
+      } catch (err) {
+        coverNote = `photo : ${message(err)}`
+      }
       const doc = await payload.create({
         collection: 'articles',
         draft: true,
@@ -209,9 +229,17 @@ export async function GET(req: Request): Promise<Response> {
           category: validCategory(result.categoryId),
           sourceName: item.source.name,
           sourceUrl: item.url,
+          ...(cover ? { cover } : {}),
         },
       })
-      details.push({ ...base, title: result.title, status: 'created', id: doc.id })
+      if (cover) summary.withCover++
+      details.push({
+        ...base,
+        title: result.title,
+        status: 'created',
+        id: doc.id,
+        cover: cover ?? coverNote,
+      })
       return true
     } catch (err) {
       summary.created--
