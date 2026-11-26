@@ -115,6 +115,90 @@ h3 {
   text-transform: uppercase;
 }
 
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ---------- Réseaux sociaux ---------- */
+
+.social {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.social__link {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.social__link svg {
+  width: 60%;
+  height: 60%;
+  fill: currentColor;
+}
+
+.social--topbar .social__link {
+  width: 22px;
+  height: 22px;
+  color: #cfe9f5;
+}
+
+.social--topbar .social__link:hover {
+  color: #fff;
+}
+
+.social--footer {
+  margin-top: 8px;
+  gap: 10px;
+}
+
+.social--footer .social__link {
+  width: 40px;
+  height: 40px;
+  background: rgb(255 255 255 / 0.1);
+}
+
+.social--footer .social__link:hover {
+  transform: translateY(-1px);
+}
+
+.social--footer .social__link--facebook:hover {
+  background: #1877f2;
+}
+
+.social--footer .social__link--youtube:hover {
+  background: #ff0000;
+}
+
+.social--footer .social__link--instagram:hover {
+  background: #d62976;
+}
+
+.social--footer .social__link--x:hover,
+.social--footer .social__link--tiktok:hover {
+  background: #000;
+}
+
+.site-footer__follow {
+  margin: 14px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
+
 .topbar__live {
   display: inline-flex;
   align-items: center;

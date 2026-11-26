@@ -101,8 +101,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'social-links': SocialLink;
+  };
+  globalsSelect: {
+    'social-links': SocialLinksSelect<false> | SocialLinksSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -205,6 +209,7 @@ export interface Media {
    */
   alt?: string | null;
   credit?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -568,6 +573,7 @@ export interface LiveEntriesSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   credit?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -719,6 +725,36 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Liens affichés en haut et en bas du site. Laissez vide pour masquer un réseau.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-links".
+ */
+export interface SocialLink {
+  id: number;
+  youtube?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+  x?: string | null;
+  tiktok?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-links_select".
+ */
+export interface SocialLinksSelect<T extends boolean = true> {
+  youtube?: T;
+  facebook?: T;
+  instagram?: T;
+  x?: T;
+  tiktok?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

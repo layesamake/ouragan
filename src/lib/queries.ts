@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 import type { Article, Category, Comment, Live, Radio } from '../payload-types'
+import { DEFAULT_SOCIAL_LINKS } from '../globals/SocialLinks'
 import { publicArticlesWhere } from './publicWhere'
 
 export const getClient = cache(async () => getPayload({ config: configPromise }))
@@ -181,4 +182,24 @@ export const getComments = cache(async (articleId: number): Promise<Comment[]> =
     })
     return res.docs as Comment[]
   }, []),
+)
+
+export type SocialNetwork = 'youtube' | 'facebook' | 'instagram' | 'x' | 'tiktok'
+const SOCIAL_ORDER: SocialNetwork[] = ['facebook', 'youtube', 'instagram', 'x', 'tiktok']
+
+/** Liens des réseaux sociaux renseignés dans l'admin (Réglages → Réseaux sociaux). */
+export const getSocialLinks = cache(
+  async (): Promise<{ network: SocialNetwork; url: string }[]> => {
+    const fallback = DEFAULT_SOCIAL_LINKS as Partial<Record<SocialNetwork, string>>
+    const values = await buildSafe(async () => {
+      const payload = await getClient()
+      const doc = await payload.findGlobal({ slug: 'social-links', depth: 0 })
+      // Jamais enregistré dans l'admin : liens par défaut.
+      return doc?.updatedAt ? (doc as Partial<Record<SocialNetwork, string | null>>) : fallback
+    }, fallback).catch(() => fallback)
+    return SOCIAL_ORDER.flatMap((network) => {
+      const url = values[network]?.trim()
+      return url ? [{ network, url }] : []
+    })
+  },
 )

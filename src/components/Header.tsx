@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import { getActiveLives, getCategories } from '../lib/queries'
 import { todayLabel } from '../lib/format'
+import { SocialLinks } from './SocialLinks'
 
 export async function Header() {
   const [allCategories, lives] = await Promise.all([getCategories(), getActiveLives()])
@@ -13,9 +14,12 @@ export async function Header() {
       <div className="topbar">
         <div className="container topbar__inner">
           <span className="topbar__date">{todayLabel()}</span>
-          <span className="topbar__live">
-            <span className="dot" aria-hidden="true" /> L&apos;info en live
-          </span>
+          <div className="topbar__right">
+            <SocialLinks variant="topbar" />
+            <span className="topbar__live">
+              <span className="dot" aria-hidden="true" /> L&apos;info en live
+            </span>
+          </div>
         </div>
       </div>
       <div className="brandbar">

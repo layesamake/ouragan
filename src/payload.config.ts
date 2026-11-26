@@ -20,6 +20,7 @@ import { Lives } from './collections/Lives'
 import { Media } from './collections/Media'
 import { Radios } from './collections/Radios'
 import { Users } from './collections/Users'
+import { SocialLinks } from './globals/SocialLinks'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -86,6 +87,7 @@ export default buildConfig({
     fallbackLanguage: 'fr',
   },
   collections: [Articles, Comments, Lives, LiveEntries, Media, Categories, Authors, Radios, Users],
+  globals: [SocialLinks],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

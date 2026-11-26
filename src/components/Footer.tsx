@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { getCategories } from '../lib/queries'
+import { SocialLinks } from './SocialLinks'
 
 export async function Footer() {
   const categories = await getCategories()
@@ -12,6 +13,8 @@ export async function Footer() {
             Ouragan<span>.sn</span>
           </p>
           <p>L&apos;info en live. Toute l&apos;actualité du Sénégal et d&apos;ailleurs.</p>
+          <p className="site-footer__follow">Suivez-nous</p>
+          <SocialLinks variant="footer" />
         </div>
         <ul className="site-footer__links">
           {categories.map((c) => (
