@@ -70,6 +70,7 @@ export function ArticleCard({
               fill
               sizes={SIZES[variant]}
               priority={priority}
+              fetchPriority={priority ? 'high' : undefined}
             />
             {isVideoCategory(category) && (
               <PlayBadge size={variant === 'hero' ? 'lg' : big ? 'md' : 'sm'} />

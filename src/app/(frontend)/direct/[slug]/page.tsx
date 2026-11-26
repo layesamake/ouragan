@@ -135,6 +135,7 @@ export default async function LivePage({ params }: Props) {
                 fill
                 sizes="(min-width: 1024px) 760px, 100vw"
                 priority
+                fetchPriority="high"
               />
             </div>
             {(cover?.alt || cover?.credit) && (
