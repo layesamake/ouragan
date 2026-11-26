@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { ArticleCard } from '../../components/ArticleCard'
 import { LatestList } from '../../components/LatestList'
+import { RadiosBlock } from '../../components/RadiosBlock'
 import { SectionTitle } from '../../components/SectionTitle'
 import { Ticker } from '../../components/Ticker'
 import { getArticles, getCategories } from '../../lib/queries'
@@ -88,6 +89,7 @@ export default async function HomePage() {
 
         <aside className="layout__aside">
           <LatestList articles={latestRes.docs} />
+          <RadiosBlock />
         </aside>
       </div>
     </>

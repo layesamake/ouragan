@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 
-import type { Article, Category } from '../payload-types'
+import type { Article, Category, Radio } from '../payload-types'
 
 export const getClient = cache(async () => getPayload({ config: configPromise }))
 
@@ -110,3 +110,18 @@ export const getArticleBySlug = cache(async (slug: string): Promise<Article | nu
   return res.docs[0] ?? null
 })
 
+
+export const getRadios = cache(
+  async (): Promise<Radio[]> =>
+    buildSafe(async () => {
+      const payload = await getClient()
+      const res = await payload.find({
+        collection: 'radios',
+        where: { active: { equals: true } },
+        sort: 'order',
+        limit: 20,
+        depth: 1,
+      })
+      return res.docs
+    }, []),
+)

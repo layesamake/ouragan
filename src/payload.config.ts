@@ -9,11 +9,13 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { ensureDefaultCategories } from './lib/defaultCategories'
+import { ensureDefaultRadios } from './lib/defaultRadios'
 import { migrations } from './migrations'
 import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
+import { Radios } from './collections/Radios'
 import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -61,7 +63,7 @@ export default buildConfig({
     supportedLanguages: { fr },
     fallbackLanguage: 'fr',
   },
-  collections: [Articles, Categories, Authors, Media, Users],
+  collections: [Articles, Categories, Authors, Media, Radios, Users],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -73,6 +75,7 @@ export default buildConfig({
   onInit: async (payload) => {
     const { totalDocs } = await payload.count({ collection: 'categories' })
     if (totalDocs === 0) await ensureDefaultCategories(payload)
+    await ensureDefaultRadios(payload).catch((err) => payload.logger.error(err))
   },
   plugins: [
     // Images stockées dans Supabase Storage (compatible S3) quand S3_BUCKET est défini ;
