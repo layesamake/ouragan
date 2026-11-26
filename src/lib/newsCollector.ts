@@ -169,7 +169,13 @@ export const repairXml = (xml: string): string =>
 async function fromRss(source: NewsSource): Promise<SourceItem[]> {
   if (!source.rss) throw new Error('pas de flux RSS')
   const xml = await fetchText(source.rss, source.timeoutMs)
-  const feed = await parser.parseString(repairXml(xml))
+  let feed: Awaited<ReturnType<typeof parser.parseString>>
+  try {
+    feed = await parser.parseString(repairXml(xml))
+  } catch {
+    // Flux mal formé (ex. Walf NET : « < » non échappé) : lecture tolérante.
+    return lenientRss(xml, source)
+  }
   const items: SourceItem[] = []
   for (const it of feed.items) {
     const url = it.link && normalizeUrl(it.link, source.homepage)
@@ -186,6 +192,37 @@ async function fromRss(source: NewsSource): Promise<SourceItem[]> {
         photoUrl(it.mediaThumbnail?.$?.url, url),
     })
   }
+  return items
+}
+
+/** Lecture tolérante d'un flux RSS invalide (cheerio en mode XML ne s'arrête pas aux erreurs). */
+function lenientRss(xml: string, source: NewsSource): SourceItem[] {
+  const $ = cheerio.load(xml, { xml: true })
+  const items: SourceItem[] = []
+  $('item').each((_, el) => {
+    const $it = $(el)
+    const link =
+      $it.children('link').first().text().trim() || $it.children('guid').first().text().trim()
+    const title = cheerio.load($it.children('title').first().text()).text().trim()
+    const url = link && normalizeUrl(link, source.homepage)
+    if (!url || !title) return
+    const enclosure = $it.children('enclosure').first()
+    items.push({
+      source,
+      url,
+      title,
+      categories: $it
+        .children('category')
+        .toArray()
+        .map((c) => $(c).text().trim()),
+      contentHtml: $it.children('content\\:encoded').first().text() || undefined,
+      imageUrl:
+        (enclosure.attr('type')?.startsWith('image')
+          ? photoUrl(enclosure.attr('url'), url)
+          : undefined) || photoUrl($it.children('media\\:content').first().attr('url'), url),
+    })
+  })
+  if (!items.length) throw new Error('flux RSS illisible')
   return items
 }
 

@@ -93,3 +93,17 @@ export function blocksToLexical(
     root: { type: 'root', version: 1, ...elementBase, children },
   }
 }
+
+/** Ajoute des vidéos après le premier paragraphe d'un contenu existant (s'il n'en a pas déjà). */
+export function addVideos(content: LexicalContent, videos: string[]): LexicalContent | null {
+  const children = content.root.children
+  if (!videos.length || children.some((n) => n.type === 'block')) return null
+  const at = children.findIndex((n) => n.type === 'paragraph') + 1
+  return {
+    ...content,
+    root: {
+      ...content.root,
+      children: [...children.slice(0, at), ...videos.map(videoNode), ...children.slice(at)],
+    },
+  }
+}
