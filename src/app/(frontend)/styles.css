@@ -790,6 +790,16 @@ main {
   margin-top: 12px;
 }
 
+/* Cartes sous « À la une » : titres coupés à 3 lignes, même hauteur pour toutes. */
+.une__grid .card__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(3em * 1.25);
+}
+
 .block {
   margin-top: 28px;
 }

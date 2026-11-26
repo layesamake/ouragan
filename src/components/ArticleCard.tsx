@@ -10,6 +10,8 @@ type Props = {
   article: Article
   variant?: Variant
   showCategory?: boolean
+  /** false : pas de lectures, commentaires ni date sous le titre. */
+  showMeta?: boolean
   priority?: boolean
 }
 
@@ -20,7 +22,13 @@ const SIZES: Record<Variant, string> = {
   compact: '96px',
 }
 
-export function ArticleCard({ article, variant = 'card', showCategory = true, priority }: Props) {
+export function ArticleCard({
+  article,
+  variant = 'card',
+  showCategory = true,
+  showMeta = true,
+  priority,
+}: Props) {
   const category = asCategory(article.category)
   const media = asMedia(article.cover)
   const src = imageUrl(
@@ -47,7 +55,13 @@ export function ArticleCard({ article, variant = 'card', showCategory = true, pr
       {src && (
         <div className="card__media">
           <Link href={href} className="card__media-link" tabIndex={-1} aria-hidden="true">
-            <Image src={src} alt={media?.alt || ''} fill sizes={SIZES[variant]} priority={priority} />
+            <Image
+              src={src}
+              alt={media?.alt || ''}
+              fill
+              sizes={SIZES[variant]}
+              priority={priority}
+            />
           </Link>
           {big && tag}
         </div>
@@ -63,18 +77,24 @@ export function ArticleCard({ article, variant = 'card', showCategory = true, pr
         {variant === 'hero' && article.excerpt && (
           <p className="card__excerpt">{article.excerpt}</p>
         )}
-        <p className="card__meta">
-          {big ? (
-            <>
-              <span>
-                {formatViews(article.views)} · {formatComments(article.commentsCount)}
-              </span>
-              <time dateTime={article.publishedAt || undefined}>{timeAgo(article.publishedAt)}</time>
-            </>
-          ) : (
-            <time dateTime={article.publishedAt || undefined}>{timeAgo(article.publishedAt)}</time>
-          )}
-        </p>
+        {showMeta && (
+          <p className="card__meta">
+            {big ? (
+              <>
+                <span>
+                  {formatViews(article.views)} · {formatComments(article.commentsCount)}
+                </span>
+                <time dateTime={article.publishedAt || undefined}>
+                  {timeAgo(article.publishedAt)}
+                </time>
+              </>
+            ) : (
+              <time dateTime={article.publishedAt || undefined}>
+                {timeAgo(article.publishedAt)}
+              </time>
+            )}
+          </p>
+        )}
       </div>
     </article>
   )
