@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { ArticleCard } from '../../components/ArticleCard'
 import { LatestList } from '../../components/LatestList'
+import { LiveBanner } from '../../components/LiveBanner'
 import { RadiosBlock } from '../../components/RadiosBlock'
 import { SectionTitle } from '../../components/SectionTitle'
 import { Ticker } from '../../components/Ticker'
@@ -39,6 +40,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <LiveBanner />
       <Ticker articles={breakingRes.docs} />
       <div className="container layout">
         <div className="layout__main">

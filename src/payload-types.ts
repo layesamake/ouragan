@@ -69,6 +69,8 @@ export interface Config {
   collections: {
     articles: Article;
     comments: Comment;
+    lives: Live;
+    'live-entries': LiveEntry;
     media: Media;
     categories: Category;
     authors: Author;
@@ -83,6 +85,8 @@ export interface Config {
   collectionsSelect: {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     comments: CommentsSelect<false> | CommentsSelect<true>;
+    lives: LivesSelect<false> | LivesSelect<true>;
+    'live-entries': LiveEntriesSelect<false> | LiveEntriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
@@ -198,6 +202,7 @@ export interface Media {
    */
   alt: string;
   credit?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -295,6 +300,49 @@ export interface Comment {
   createdAt: string;
 }
 /**
+ * Suivez un grand événement en direct : vos messages apparaissent sur le site sans que les lecteurs aient à recharger la page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lives".
+ */
+export interface Live {
+  id: number;
+  title: string;
+  /**
+   * 1 ou 2 phrases affichées en haut du direct et lors du partage.
+   */
+  summary?: string | null;
+  cover?: (number | null) | Media;
+  /**
+   * « En cours » : affiché en haut de la page d’accueil. « Terminé » : la page reste consultable.
+   */
+  status: 'live' | 'draft' | 'ended';
+  category?: (number | null) | Category;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  /**
+   * Généré automatiquement si laissé vide.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "live-entries".
+ */
+export interface LiveEntry {
+  id: number;
+  live: number | Live;
+  title?: string | null;
+  text: string;
+  important?: boolean | null;
+  image?: (number | null) | Media;
+  article?: (number | null) | Article;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Radios proposées en écoute dans le bloc « Ouragan Radios » de la page d’accueil.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -375,6 +423,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'comments';
         value: number | Comment;
+      } | null)
+    | ({
+        relationTo: 'lives';
+        value: number | Live;
+      } | null)
+    | ({
+        relationTo: 'live-entries';
+        value: number | LiveEntry;
       } | null)
     | ({
         relationTo: 'media';
@@ -475,11 +531,42 @@ export interface CommentsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lives_select".
+ */
+export interface LivesSelect<T extends boolean = true> {
+  title?: T;
+  summary?: T;
+  cover?: T;
+  status?: T;
+  category?: T;
+  startedAt?: T;
+  endedAt?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "live-entries_select".
+ */
+export interface LiveEntriesSelect<T extends boolean = true> {
+  live?: T;
+  title?: T;
+  text?: T;
+  important?: T;
+  image?: T;
+  article?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   credit?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

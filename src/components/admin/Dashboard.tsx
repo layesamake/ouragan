@@ -27,7 +27,16 @@ const greeting = () => {
 
 /** Page d'accueil de l'administration : actions rapides et chiffres du jour. */
 export async function Dashboard({ payload, user }: Props) {
-  const data = await getDashboardData(payload)
+  const [data, lives] = await Promise.all([
+    getDashboardData(payload),
+    payload.find({
+      collection: 'lives',
+      where: { status: { equals: 'live' } },
+      sort: '-startedAt',
+      limit: 5,
+      depth: 0,
+    }),
+  ])
   const firstName = (user?.name || '').split(' ')[0]
   const todayLabel = new Intl.DateTimeFormat('fr-FR', {
     weekday: 'long',
@@ -48,9 +57,28 @@ export async function Dashboard({ payload, user }: Props) {
         </div>
       </header>
 
+      {lives.docs.length > 0 && (
+        <section className="ouragan-live-now" aria-label="Directs en cours">
+          {lives.docs.map((l) => (
+            <Link
+              key={l.id}
+              href={`${ADMIN}/collections/lives/${l.id}`}
+              className="ouragan-live-now__item"
+            >
+              <span className="ouragan-badge ouragan-badge--live">En direct</span>
+              <strong>{l.title}</strong>
+              <span>Publier un message →</span>
+            </Link>
+          ))}
+        </section>
+      )}
+
       <div className="ouragan-dash__actions">
         <Link href={NEW_ARTICLE_URL} className="ouragan-action ouragan-action--primary">
           <span aria-hidden="true">✍️</span> Nouvel article
+        </Link>
+        <Link href={`${ADMIN}/collections/lives/create`} className="ouragan-action">
+          <span aria-hidden="true">🔴</span> Lancer un direct
         </Link>
         <Link href={NEW_MEDIA_URL} className="ouragan-action">
           <span aria-hidden="true">📷</span> Ajouter une photo

@@ -15,6 +15,8 @@ import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
 import { Comments } from './collections/Comments'
+import { LiveEntries } from './collections/LiveEntries'
+import { Lives } from './collections/Lives'
 import { Media } from './collections/Media'
 import { Radios } from './collections/Radios'
 import { Users } from './collections/Users'
@@ -83,7 +85,7 @@ export default buildConfig({
     supportedLanguages: { fr },
     fallbackLanguage: 'fr',
   },
-  collections: [Articles, Comments, Media, Categories, Authors, Radios, Users],
+  collections: [Articles, Comments, Lives, LiveEntries, Media, Categories, Authors, Radios, Users],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
