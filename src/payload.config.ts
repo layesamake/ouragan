@@ -8,6 +8,7 @@ import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
+import { ensureDefaultCategories } from './lib/defaultCategories'
 import { migrations } from './migrations'
 import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
@@ -54,6 +55,11 @@ export default buildConfig({
   },
   db,
   sharp,
+  // Au démarrage : si aucune rubrique n'existe encore, crée les 6 rubriques du site.
+  onInit: async (payload) => {
+    const { totalDocs } = await payload.count({ collection: 'categories' })
+    if (totalDocs === 0) await ensureDefaultCategories(payload)
+  },
   plugins: [
     // Images stockées dans Supabase Storage (compatible S3) quand S3_BUCKET est défini ;
     // sinon, sur le disque local (dossier /media), pratique en développement.

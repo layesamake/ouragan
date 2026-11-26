@@ -29,8 +29,8 @@ Prérequis : Node.js 22+ et pnpm.
 ```bash
 cp .env.example .env      # SQLite par défaut, rien d'autre à installer
 pnpm install
-pnpm seed                 # crée les 6 rubriques (Politique, Économie, Société, Culture, Sports, Vidéos)
-pnpm dev                  # http://localhost:3000 — admin : http://localhost:3000/admin
+pnpm dev                  # les 6 rubriques sont créées automatiquement au premier démarrage
+                          # http://localhost:3000 — admin : http://localhost:3000/admin
 ```
 
 Au premier passage sur `/admin`, Payload demande de créer le compte administrateur.
@@ -49,7 +49,7 @@ Au premier passage sur `/admin`, Payload demande de créer le compte administrat
 - Commande de build : `pnpm install && pnpm build` — commande de démarrage : `pnpm start`.
 - Variables d'environnement : `DATABASE_URL`, `PAYLOAD_SECRET` (longue chaîne aléatoire), `NEXT_PUBLIC_SERVER_URL=https://ouragan.sn`, `S3_BUCKET=media`, `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`.
 - Les migrations de la base s'appliquent **automatiquement au démarrage**.
-- Une fois en ligne, lancer `pnpm seed` une fois (ou créer les rubriques à la main dans l'admin).
+- Au premier démarrage, les 6 rubriques (Politique, Économie, Société, Culture, Sports, Vidéos) sont créées automatiquement si la base est vide.
 
 ### 3. Cloudflare (DNS)
 
@@ -70,6 +70,6 @@ pnpm generate:types
 |---|---|
 | `pnpm dev` | Serveur de développement |
 | `pnpm build` / `pnpm start` | Build et démarrage en production |
-| `pnpm seed` | Crée les rubriques de base |
+| `pnpm seed` | Recrée les rubriques manquantes |
 | `pnpm generate:types` | Régénère `src/payload-types.ts` |
 | `pnpm lint` | Vérifie le code |
