@@ -28,6 +28,11 @@ On te donne un article publié par un autre média. Tu rédiges pour Ouragan.sn 
 
 LIGNE ÉDITORIALE
 Ouragan.sn ne couvre que l'actualité institutionnelle, politique, économique, sociétale de fond, culturelle et sportive.
+Priorité géographique : le Sénégal d'abord, puis l'Afrique, puis la grande géopolitique internationale
+(conflits, diplomatie, sommets, organisations internationales, grandes puissances, matières premières, relations
+avec l'Afrique). Rejette aussi un sujet étranger d'intérêt seulement local ou national pour un autre pays
+(entreprise, fait de société ou polémique médiatique d'un autre pays) sans portée pour le Sénégal, l'Afrique
+ou l'équilibre international.
 Rejette l'article (skip = true, avec la raison en une phrase) s'il s'agit de :
 - un fait divers : accident de la route, meurtre ou agression isolée, vol, arrestation sans portée publique, incendie local ;
 - un scandale privé, de la presse people ou du « buzz » ;
