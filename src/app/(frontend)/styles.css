@@ -261,63 +261,139 @@ h3 {
   height: 52px;
 }
 
-/* Menu des rubriques : défilement horizontal au doigt sur mobile */
+/* Menu des rubriques
+   Mobile/tablette : barre bleue collante avec un bouton « menu » (trois traits)
+   qui ouvre un panneau listant toutes les rubriques.
+   Ordinateur (≥ 1024 px) : liste horizontale. */
 .rubriques {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: var(--brand);
+  background: var(--brand-dark); /* bleu assez foncé pour lire le blanc (contraste 4,8:1) */
   border-bottom: 3px solid var(--live);
   box-shadow: 0 2px 6px rgb(0 0 0 / 0.15);
 }
 
-.rubriques__list {
+.rubriques__bar {
+  position: relative;
+  z-index: 2;
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 48px;
+  background: var(--brand-dark); /* reste vif au-dessus du fond assombri */
+}
+
+.rubriques__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin-left: -8px;
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+}
+
+.burger {
+  display: grid;
   gap: 4px;
-  margin: 0 auto;
-  list-style: none;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
+  width: 22px;
 }
 
-.rubriques__list::-webkit-scrollbar {
+.burger span {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: #fff;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.is-open .burger span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.is-open .burger span:nth-child(2) {
+  opacity: 0;
+}
+
+.is-open .burger span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Panneau des rubriques (fermé par défaut sur mobile) */
+.rubriques__list {
   display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-/* Fondu à droite : montre qu'on peut faire glisser le menu au doigt */
-.rubriques::after {
-  content: '';
+.is-open .rubriques__list {
   position: absolute;
-  top: 0;
+  top: 100%;
+  left: 0;
   right: 0;
-  bottom: 0;
-  width: 28px;
-  background: linear-gradient(90deg, rgb(39 163 217 / 0), var(--brand));
-  pointer-events: none;
-}
-
-.rubriques__list li {
-  flex: none;
-  scroll-snap-align: start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin-top: 3px; /* sous le liseré rouge */
+  max-height: calc(100vh - 120px);
+  max-height: calc(100dvh - 120px);
+  overflow-y: auto;
+  background: #2a4b62; /* filets entre les cases */
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.25);
 }
 
 .rubriques__list a {
-  display: block;
-  padding: 12px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--brand-ink);
   color: #fff;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   white-space: nowrap;
-  border-bottom: 3px solid transparent;
 }
 
-.rubriques__list a:hover {
+.rubriques__list a:hover,
+.rubriques__list a[aria-current='page'] {
   color: #fff;
-  border-bottom-color: #fff;
+  background: var(--brand-dark);
+}
+
+.rubriques__list a[aria-current='page'] {
+  box-shadow: inset 4px 0 0 var(--live);
+}
+
+/* Fond assombri derrière le panneau ouvert (touche pour fermer) */
+.rubriques__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  padding: 0;
+  background: rgb(0 0 0 / 0.4);
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burger span {
+    transition: none;
+  }
 }
 
 /* ---------- Bandeau « En direct » ---------- */
@@ -399,11 +475,27 @@ h3 {
   background: #fff;
 }
 
-.rubriques__list a.rubriques__live {
+.rubriques__list a.rubriques__live,
+.rubriques__list a.rubriques__live:hover {
+  background: var(--live);
+}
+
+/* Pastille « Direct » à droite du bouton menu (mobile) */
+.rubriques__live--bar {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
   background: var(--live);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.rubriques__live--bar:hover {
+  color: #fff;
 }
 
 .live-banner {
@@ -1786,12 +1878,50 @@ main {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .rubriques__list a {
-    padding: 14px 12px;
+  /* Menu horizontal classique */
+  .rubriques__toggle,
+  .rubriques__live--bar,
+  .rubriques__backdrop {
+    display: none;
   }
 
-  .rubriques::after {
-    display: none;
+  .rubriques__list,
+  .is-open .rubriques__list {
+    position: static;
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    max-height: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: none;
+    box-shadow: none;
+  }
+
+  .rubriques__bar {
+    background: none;
+  }
+
+  .rubriques__list li {
+    flex: none;
+  }
+
+  .rubriques__list a {
+    padding: 14px 12px;
+    font-size: 14px;
+    background: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  .rubriques__list a:hover,
+  .rubriques__list a[aria-current='page'] {
+    background: none;
+    border-bottom-color: #fff;
+    box-shadow: none;
+  }
+  .rubriques__list a.rubriques__live,
+  .rubriques__list a.rubriques__live:hover {
+    background: var(--live);
   }
 }
 
