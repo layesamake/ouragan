@@ -3,7 +3,14 @@
  * Pour ajouter / retirer un média, modifier simplement NEWS_SOURCES.
  */
 
+/** Groupe de médias traité par un même appel de la route (?group=…). */
+export type NewsGroup = 'senegal' | 'afrique' | 'international'
+
 export type NewsSource = {
+  /** Groupe du média : « senegal » (par défaut), « afrique » ou « international ». */
+  group?: NewsGroup
+  /** Rubrique imposée (slug) : les articles de ce média y vont toujours. */
+  category?: string
   /** Nom affiché et cité dans l'article (« Selon … »). */
   name: string
   /** Formule d'attribution proposée à l'IA. */
@@ -81,6 +88,108 @@ export const NEWS_SOURCES: NewsSource[] = [
   },
 ]
 
+/** Corps d'article des grands sites d'information (secours de l'extraction). */
+const NEWS_SELECTORS = [
+  '.article__content',
+  '.t-content__body',
+  '.textModule',
+  '.content_body',
+  '[data-component="text-block"]',
+  '.post-content',
+  '.entry-content',
+  'article',
+  'main',
+]
+
+/** Médias africains : rubrique « Afrique ». */
+const AFRIQUE_SOURCES: NewsSource[] = [
+  {
+    name: 'Jeune Afrique',
+    attribution: 'Selon Jeune Afrique',
+    homepage: 'https://www.jeuneafrique.com/',
+    rss: 'https://www.jeuneafrique.com/feed/',
+    articleLinkPattern: /jeuneafrique\.com\/\d{6,}\/[a-z-]+\/[a-z0-9-]{15,}\/?$/i,
+    contentSelectors: NEWS_SELECTORS,
+  },
+  {
+    name: 'BBC Afrique',
+    attribution: 'Selon BBC Afrique',
+    homepage: 'https://www.bbc.com/afrique',
+    rss: 'https://feeds.bbci.co.uk/afrique/rss.xml',
+    articleLinkPattern: /\/afrique\/(?:articles\/[a-z0-9]{8,}|[a-z-]+-\d{8})$/i,
+    contentSelectors: NEWS_SELECTORS,
+  },
+  {
+    name: 'RFI',
+    attribution: 'Comme le rapporte RFI',
+    homepage: 'https://www.rfi.fr/fr/afrique/',
+    rss: 'https://www.rfi.fr/fr/afrique/rss',
+    articleLinkPattern: /\/fr\/[a-z-]+\/\d{8}-[a-z0-9-]{15,}$/i,
+    contentSelectors: NEWS_SELECTORS,
+  },
+  {
+    name: 'Africanews',
+    attribution: 'D’après Africanews',
+    homepage: 'https://fr.africanews.com/',
+    rss: 'https://fr.africanews.com/feed/rss',
+    articleLinkPattern: /africanews\.com\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9-]{15,}\/?$/i,
+    contentSelectors: NEWS_SELECTORS,
+  },
+  {
+    name: 'France 24',
+    attribution: 'Selon France 24',
+    homepage: 'https://www.france24.com/fr/afrique/',
+    rss: 'https://www.france24.com/fr/afrique/rss',
+    articleLinkPattern: /\/fr\/[a-z-]+\/\d{8}-[a-z0-9-]{15,}$/i,
+    contentSelectors: NEWS_SELECTORS,
+  },
+].map((s) => ({ ...s, group: 'afrique' as const, category: 'afrique' }))
+
+/** Médias internationaux : rubrique « International ». */
+const INTERNATIONAL_SOURCES: NewsSource[] = [
+  {
+    name: 'Le Monde',
+    attribution: 'Selon Le Monde',
+    homepage: 'https://www.lemonde.fr/international/',
+    rss: 'https://www.lemonde.fr/international/rss_full.xml',
+    articleLinkPattern: /\/article\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9-]+_\d+_\d+\.html$/i,
+    contentSelectors: NEWS_SELECTORS,
+  },
+  {
+    name: 'La Presse',
+    attribution: 'D’après La Presse',
+    homepage: 'https://www.lapresse.ca/international/',
+    rss: 'https://www.lapresse.ca/international/rss',
+    articleLinkPattern:
+      /\/international\/(?:[a-z0-9-]+\/)*\d{4}-\d{2}-\d{2}\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.php$/i,
+    contentSelectors: NEWS_SELECTORS,
+  },
+  {
+    name: 'BFMTV',
+    attribution: 'Selon BFMTV',
+    homepage: 'https://www.bfmtv.com/international/',
+    rss: 'https://www.bfmtv.com/rss/international/',
+    articleLinkPattern: /\/international\/.+_A[A-Z]-\d{12}\.html$/,
+    contentSelectors: NEWS_SELECTORS,
+  },
+].map((s) => ({ ...s, group: 'international' as const, category: 'international' }))
+
+NEWS_SOURCES.push(...AFRIQUE_SOURCES, ...INTERNATIONAL_SOURCES)
+
+/** Médias d'un groupe. */
+export const sourcesOf = (group: NewsGroup): NewsSource[] =>
+  NEWS_SOURCES.filter((s) => (s.group ?? 'senegal') === group)
+
+/**
+ * Plafonds par groupe et par exécution, choisis pour économiser les crédits de l'API :
+ * au plus 12 + 6 + 4 = 22 brouillons par jour.
+ */
+export const GROUP_LIMITS: Record<NewsGroup, { perSource: number; perRun: number }> = {
+  senegal: { perSource: 3, perRun: 12 },
+  afrique: { perSource: 2, perRun: 6 },
+  international: { perSource: 2, perRun: 4 },
+}
+
 /** En-têtes d'un navigateur ordinaire (certains sites refusent les robots sans User-Agent). */
 export const HTTP_HEADERS = {
   'User-Agent':
@@ -90,11 +199,6 @@ export const HTTP_HEADERS = {
   'Accept-Language': 'fr-FR,fr;q=0.9',
 }
 export const HTTP_TIMEOUT_MS = 10_000
-
-/** Articles retenus au plus par média et par exécution. */
-export const MAX_PER_SOURCE = 3
-/** Articles créés au plus par exécution. */
-export const MAX_CREATED_PER_RUN = 12
 
 /**
  * Rubriques exclues, recherchées dans l'adresse et les catégories RSS

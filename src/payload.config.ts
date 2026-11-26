@@ -97,8 +97,8 @@ export default buildConfig({
   sharp,
   // Au démarrage : si aucune rubrique n'existe encore, crée les 6 rubriques du site.
   onInit: async (payload) => {
-    const { totalDocs } = await payload.count({ collection: 'categories' })
-    if (totalDocs === 0) await ensureDefaultCategories(payload)
+    // Crée les rubriques manquantes (ex. Afrique et International ajoutées après la mise en ligne).
+    await ensureDefaultCategories(payload).catch((err) => payload.logger.error(err))
     await ensureDefaultRadios(payload).catch((err) => payload.logger.error(err))
   },
   plugins: [

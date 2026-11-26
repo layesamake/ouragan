@@ -11,14 +11,28 @@ import {
   MIN_TEXT_CHARS,
   type SourceItem,
 } from '@/lib/newsCollector'
-import { excludedBy, MAX_CREATED_PER_RUN, MAX_PER_SOURCE, NEWS_SOURCES } from '@/lib/newsSources'
-import { rewriteArticle, type CategoryChoice } from '@/lib/newsWriter'
+import {
+  excludedBy,
+  GROUP_LIMITS,
+  NEWS_SOURCES,
+  sourcesOf,
+  type NewsGroup,
+} from '@/lib/newsSources'
+import {
+  costUsd,
+  obviousDuplicate,
+  rewriteArticle,
+  type CategoryChoice,
+  type Usage,
+} from '@/lib/newsWriter'
 import { getClient } from '@/lib/queries'
 import { slugify } from '@/lib/slugify'
 
 /**
- * GET /api/cron/generate-news — rédaction IA quotidienne.
- * Lit les derniers articles de 6 médias sénégalais, écarte les doublons et les
+ * GET /api/cron/generate-news?group=senegal|afrique|international — rédaction IA quotidienne.
+ * Chaque groupe de médias est traité par un appel distinct (Cloudflare coupe à 100 s) :
+ * « senegal » (par défaut) lit 6 médias sénégalais ; « afrique » et « international »
+ * alimentent leur rubrique du même nom. Pour chaque groupe, la route lit les derniers articles, écarte les doublons et les
  * faits divers, les fait réécrire par Claude et les enregistre en BROUILLON
  * pour relecture dans /admin, avec la photo d'origine de l'article (créditée au
  * média), ou à défaut une photo sous licence libre (Wikimedia Commons, puis Pexels).
@@ -105,16 +119,25 @@ export async function GET(req: Request): Promise<Response> {
     )
   }
 
+  const groupParam = new URL(req.url).searchParams.get('group') || 'senegal'
+  if (!(groupParam in GROUP_LIMITS)) {
+    return Response.json(
+      { success: false, error: 'group doit valoir senegal, afrique ou international' },
+      { status: 400 },
+    )
+  }
+  const group = groupParam as NewsGroup
+  const { perSource: MAX_PER_SOURCE, perRun: MAX_CREATED_PER_RUN } = GROUP_LIMITS[group]
+  const groupSources = sourcesOf(group)
+
   const startedAt = Date.now()
   const timeLeft = () => TIME_BUDGET_MS - (Date.now() - startedAt)
   const payload = await getClient()
 
   // Rubriques proposées à l'IA (jamais « Vidéos » pour un article texte).
-  let cats = await payload.find({ collection: 'categories', sort: 'order', limit: 50, depth: 0 })
-  if (!cats.docs.length) {
-    await ensureDefaultCategories(payload)
-    cats = await payload.find({ collection: 'categories', sort: 'order', limit: 50, depth: 0 })
-  }
+  // Crée au besoin les rubriques manquantes (ex. Afrique et International).
+  await ensureDefaultCategories(payload)
+  const cats = await payload.find({ collection: 'categories', sort: 'order', limit: 50, depth: 0 })
   const categories: CategoryChoice[] = cats.docs
     .filter((c) => c.slug !== 'videos')
     .map((c) => ({ id: c.id, name: c.name, slug: c.slug || '' }))
@@ -123,6 +146,8 @@ export async function GET(req: Request): Promise<Response> {
   }
   const validCategory = (id: number) =>
     categories.some((c) => c.id === id) ? id : categories[0].id
+  const categoryBySlug = (slug?: string) =>
+    slug ? categories.find((c) => c.slug === slug) : undefined
 
   const summary = {
     totalChecked: 0,
@@ -134,7 +159,9 @@ export async function GET(req: Request): Promise<Response> {
     errors: 0,
     withCover: 0,
     withVideo: 0,
+    aiCalls: 0,
   }
+  const usage: Usage = { input: 0, cacheRead: 0, cacheWrite: 0, output: 0 }
   const usedPhotos = new Set<string>()
   const details: Detail[] = []
   const sources: {
@@ -145,12 +172,12 @@ export async function GET(req: Request): Promise<Response> {
     rssError?: string
   }[] = []
 
-  // 1. Collecte des 6 médias en parallèle.
-  const collected = await Promise.allSettled(NEWS_SOURCES.map((s) => collectSource(s)))
+  // 1. Collecte des médias du groupe en parallèle.
+  const collected = await Promise.allSettled(groupSources.map((s) => collectSource(s)))
 
   const queues: SourceItem[][] = []
   collected.forEach((res, i) => {
-    const name = NEWS_SOURCES[i].name
+    const name = groupSources[i].name
     if (res.status === 'rejected') {
       summary.errors++
       sources.push({ source: name, found: 0, error: message(res.reason) })
@@ -181,12 +208,26 @@ export async function GET(req: Request): Promise<Response> {
       details.push({ ...base, status: 'duplicate' })
       return false
     }
+    // Même événement déjà traité, reconnu au titre : pas d'appel à l'IA.
+    const sameEvent = obviousDuplicate(item.title, recentTitles)
+    if (sameEvent) {
+      summary.skippedDuplicates++
+      details.push({ ...base, status: 'duplicate', reason: `même sujet que « ${sameEvent} »` })
+      return false
+    }
+    if (summary.created >= MAX_CREATED_PER_RUN) {
+      summary.notProcessed++
+      details.push({ ...base, status: 'not_processed', reason: 'plafond atteint' })
+      return false
+    }
     const { text, imageUrl, videos } = await extractArticleText(item)
     if (text.length < MIN_TEXT_CHARS) {
       summary.skippedTooShort++
       details.push({ ...base, status: 'too_short', reason: `${text.length} caractères` })
       return false
     }
+    const forcedCategory = categoryBySlug(item.source.category)
+    summary.aiCalls++
     const result = await rewriteArticle({
       source: item.source,
       url: item.url,
@@ -194,7 +235,14 @@ export async function GET(req: Request): Promise<Response> {
       text,
       categories,
       recentTitles,
+      forcedCategory,
     })
+    if (result.usage) {
+      usage.input += result.usage.input
+      usage.cacheRead += result.usage.cacheRead
+      usage.cacheWrite += result.usage.cacheWrite
+      usage.output += result.usage.output
+    }
     if (result.skip) {
       summary.skippedFiltered++
       details.push({ ...base, status: 'filtered', reason: result.reason })
@@ -238,7 +286,7 @@ export async function GET(req: Request): Promise<Response> {
             { name: item.source.name, url: item.url },
             videos,
           ),
-          category: validCategory(result.categoryId),
+          category: forcedCategory?.id ?? validCategory(result.categoryId),
           sourceName: item.source.name,
           sourceUrl: item.url,
           ...(cover ? { cover } : {}),
@@ -309,7 +357,7 @@ export async function GET(req: Request): Promise<Response> {
       ],
     },
     sort: '-createdAt',
-    limit: 60,
+    limit: 80,
     depth: 0,
     pagination: false,
     select: { title: true },
@@ -396,12 +444,14 @@ export async function GET(req: Request): Promise<Response> {
   }
 
   payload.logger.info(
-    `Rédaction IA : ${summary.created} brouillon(s) créé(s) en ${Math.round((Date.now() - startedAt) / 1000)} s`,
+    `Rédaction IA (${group}) : ${summary.created} brouillon(s) créé(s) en ${Math.round((Date.now() - startedAt) / 1000)} s`,
   )
   return Response.json({
     success: true,
+    group,
     durationMs: Date.now() - startedAt,
-    summary,
+    summary: { ...summary, estimatedCostUsd: Number(costUsd(usage).toFixed(4)) },
+    usage,
     sources,
     details,
     backfilled,

@@ -16,7 +16,7 @@ concurrency:
 jobs:
   generate-news:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Préparer les brouillons
         env:
@@ -27,14 +27,23 @@ jobs:
             echo "::error::Le secret CRON_SECRET n'est pas défini dans GitHub."
             exit 1
           fi
-          status=$(curl -sS -o response.json -w '%{http_code}' --max-time 120 \
-            -X GET "${SITE_URL}/api/cron/generate-news" \
-            -H "Authorization: Bearer ${CRON_SECRET}")
-          echo "Code HTTP : $status"
-          cat response.json | head -c 20000; echo
-          if [ "$status" != "200" ]; then
-            echo "::error::La rédaction IA a répondu $status."
-            exit 1
-          fi
           echo "### Rédaction IA" >> "$GITHUB_STEP_SUMMARY"
-          jq -r '.summary | to_entries[] | "- \(.key) : \(.value)"' response.json >> "$GITHUB_STEP_SUMMARY" || true
+          failed=0
+          # Un appel par groupe de médias (Cloudflare coupe chaque requête à 100 s).
+          for group in senegal afrique international; do
+            echo "::group::Groupe ${group}"
+            status=$(curl -sS -o "response-${group}.json" -w '%{http_code}' --max-time 120 \
+              -X GET "${SITE_URL}/api/cron/generate-news?group=${group}" \
+              -H "Authorization: Bearer ${CRON_SECRET}") || status=000
+            echo "Code HTTP : $status"
+            head -c 20000 "response-${group}.json" 2>/dev/null || true; echo
+            echo "::endgroup::"
+            echo "#### ${group} (HTTP ${status})" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$status" != "200" ]; then
+              echo "::error::La rédaction IA (${group}) a répondu $status."
+              failed=1
+              continue
+            fi
+            jq -r '.summary | to_entries[] | "- \(.key) : \(.value)"' "response-${group}.json" >> "$GITHUB_STEP_SUMMARY" || true
+          done
+          exit $failed
