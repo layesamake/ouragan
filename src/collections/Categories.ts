@@ -14,7 +14,7 @@ export const Categories: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'order', 'showInNav', 'showOnHome'],
-    group: 'Contenu',
+    group: 'Réglages',
   },
   defaultSort: 'order',
   access: { read: () => true },

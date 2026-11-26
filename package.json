@@ -18,6 +18,7 @@
   "dependencies": {
     "@payloadcms/db-postgres": "3.94.2",
     "@payloadcms/db-sqlite": "3.94.2",
+    "@payloadcms/live-preview-react": "3.94.2",
     "@payloadcms/next": "3.94.2",
     "@payloadcms/richtext-lexical": "3.94.2",
     "@payloadcms/storage-s3": "3.94.2",

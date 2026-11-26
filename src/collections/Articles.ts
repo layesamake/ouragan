@@ -1,8 +1,12 @@
 import type { CollectionConfig } from 'payload'
 
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
+import { publicArticlesWhere } from '../lib/publicWhere'
 
 import { slugField } from './slugField'
+
+/** Adresse du site, pour l'aperçu en direct de l'article dans l'administration. */
+const siteURL = () => process.env.NEXT_PUBLIC_SERVER_URL || ''
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
@@ -14,9 +18,19 @@ export const Articles: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'publishedAt', '_status', 'featured'],
-    group: 'Contenu',
+    group: 'Rédaction',
     listSearchableFields: ['title', 'excerpt'],
-    preview: (doc) => (doc?.slug ? `/article/${doc.slug}` : null),
+    preview: (doc) => (doc?.slug ? `${siteURL()}/article/${doc.slug}` : null),
+    // Aperçu « téléphone » de l'article, à côté de l'éditeur, mis à jour à chaque sauvegarde auto.
+    livePreview: {
+      url: ({ data }) =>
+        data?.slug ? `${siteURL()}/apercu?slug=${encodeURIComponent(data.slug)}` : null,
+      breakpoints: [
+        { label: 'Téléphone', name: 'mobile', width: 390, height: 780 },
+        { label: 'Tablette', name: 'tablet', width: 820, height: 1100 },
+        { label: 'Ordinateur', name: 'desktop', width: 1280, height: 860 },
+      ],
+    },
   },
   defaultSort: '-publishedAt',
   endpoints: [
@@ -50,26 +64,56 @@ export const Articles: CollectionConfig = {
     maxPerDoc: 20,
   },
   access: {
-    // Le public ne voit que les articles publiés ; le rédacteur connecté voit tout.
-    read: ({ req }) => (req.user ? true : { _status: { equals: 'published' } }),
+    // Le public ne voit que les articles publiés dont l'heure de publication est passée ;
+    // le rédacteur connecté voit tout.
+    read: ({ req }) => (req.user ? true : publicArticlesWhere()),
   },
   fields: [
-    { name: 'title', label: 'Titre', type: 'text', required: true },
+    // ——— Zone principale : l'essentiel pour écrire ———
     {
-      name: 'kicker',
-      label: 'Surtitre',
+      name: 'title',
+      label: 'Titre',
       type: 'text',
-      admin: { description: 'Petit texte au-dessus du titre (ex. : EXCLUSIF, VIDÉO, URGENT).' },
+      required: true,
+      admin: { placeholder: 'Le titre de votre article' },
     },
     {
-      name: 'excerpt',
-      label: 'Chapô',
-      type: 'textarea',
-      admin: { description: 'Résumé de 1 à 3 phrases, affiché sous le titre et dans les listes.' },
+      name: 'cover',
+      label: 'Photo principale',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description:
+          'Glissez-déposez une photo ici, ou cliquez pour en choisir une. Elle est compressée automatiquement.',
+      },
     },
-    { name: 'cover', label: 'Image principale', type: 'upload', relationTo: 'media' },
-    { name: 'content', label: 'Contenu', type: 'richText' },
-    slugField('title'),
+    { name: 'content', label: 'Texte de l’article', type: 'richText' },
+    {
+      type: 'collapsible',
+      label: 'Surtitre et résumé (facultatif)',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          name: 'kicker',
+          label: 'Surtitre',
+          type: 'text',
+          admin: {
+            description: 'Petit mot au-dessus du titre (ex. : EXCLUSIF, VIDÉO, URGENT).',
+          },
+        },
+        {
+          name: 'excerpt',
+          label: 'Résumé (chapô)',
+          type: 'textarea',
+          admin: {
+            description:
+              '1 à 3 phrases, affichées sous le titre et quand l’article est partagé sur les réseaux.',
+          },
+        },
+      ],
+    },
+
+    // ——— Colonne de droite : réglages de publication ———
     {
       name: 'category',
       label: 'Rubrique',
@@ -80,11 +124,22 @@ export const Articles: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     {
-      name: 'author',
-      label: 'Auteur',
-      type: 'relationship',
-      relationTo: 'authors',
-      admin: { position: 'sidebar' },
+      name: 'featured',
+      label: '⭐ À la une',
+      type: 'checkbox',
+      defaultValue: false,
+      index: true,
+      admin: { position: 'sidebar', description: 'En grand en haut de la page d’accueil.' },
+    },
+    {
+      name: 'breaking',
+      label: '⚡ Flash info',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Dans le bandeau défilant « En direct ».',
+      },
     },
     {
       name: 'publishedAt',
@@ -93,6 +148,8 @@ export const Articles: CollectionConfig = {
       index: true,
       admin: {
         position: 'sidebar',
+        description:
+          'Vide = publié tout de suite. Pour programmer : choisissez une date future puis cliquez sur « Publier » ; l’article apparaîtra tout seul à cette heure-là.',
         date: { pickerAppearance: 'dayAndTime', displayFormat: 'dd/MM/yyyy HH:mm' },
       },
       hooks: {
@@ -105,31 +162,31 @@ export const Articles: CollectionConfig = {
       },
     },
     {
+      name: 'share',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '/components/admin/ShareButtons#ShareButtons' },
+      },
+    },
+    {
       name: 'views',
       label: 'Lectures',
       type: 'number',
       defaultValue: 0,
       // Incrémenté automatiquement à chaque visite de l'article ; non modifiable dans l'admin.
+      // Le compteur est affiché dans le bloc « Partager » (valeur réelle de l'article en ligne,
+      // le formulaire montrant sinon celle du dernier brouillon enregistré).
       access: { create: () => false, update: () => false },
-      admin: { position: 'sidebar', readOnly: true },
+      admin: { position: 'sidebar', readOnly: true, hidden: true },
     },
     {
-      name: 'featured',
-      label: 'À la une',
-      type: 'checkbox',
-      defaultValue: false,
-      index: true,
-      admin: { position: 'sidebar', description: "Mettre en avant en haut de la page d'accueil." },
+      name: 'author',
+      label: 'Auteur',
+      type: 'relationship',
+      relationTo: 'authors',
+      admin: { position: 'sidebar' },
     },
-    {
-      name: 'breaking',
-      label: 'Flash info',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: {
-        position: 'sidebar',
-        description: 'Afficher dans le bandeau défilant « En direct ».',
-      },
-    },
+    slugField('title'),
   ],
 }
