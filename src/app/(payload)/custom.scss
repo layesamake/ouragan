@@ -460,3 +460,217 @@ html[data-theme='dark'] .ouragan-tile__value {
     max-width: 100% !important;
   }
 }
+
+/* ---------- Direct : bloc « Publier dans le direct » ---------- */
+.ouragan-live {
+  border: 2px solid var(--ouragan-red);
+  border-radius: 10px;
+  padding: 14px;
+  margin: 8px 0 24px;
+  background: var(--ouragan-card);
+}
+
+.ouragan-live--empty p {
+  margin: 0 0 4px;
+}
+
+.ouragan-live__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ouragan-live__head a {
+  color: var(--ouragan-blue-dark);
+  font-weight: 600;
+}
+
+.ouragan-live__label {
+  font-weight: 800;
+  font-size: 15px;
+  margin: 0 0 10px;
+}
+
+.ouragan-live__label--list {
+  margin-top: 18px;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--ouragan-muted);
+}
+
+.ouragan-live__note {
+  background: var(--ouragan-soft);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.ouragan-live__form {
+  display: grid;
+  gap: 8px;
+}
+
+.ouragan-live__input {
+  width: 100%;
+  font: inherit;
+  font-size: 16px; /* évite le zoom automatique sur iPhone */
+  padding: 10px 12px;
+  border: 1px solid var(--ouragan-line);
+  border-radius: 8px;
+  background: var(--theme-input-bg, var(--theme-elevation-0));
+  color: var(--theme-text);
+  resize: vertical;
+}
+
+.ouragan-live__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.ouragan-live__check,
+.ouragan-live__file,
+.ouragan-live__link,
+.ouragan-live__actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 1px solid var(--ouragan-line);
+  border-radius: 999px;
+  background: var(--theme-elevation-50);
+  color: var(--theme-text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.ouragan-live__file input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.ouragan-live__publish {
+  min-height: 48px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ouragan-red);
+  color: #fff;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ouragan-live__publish:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ouragan-live__status {
+  margin-top: 10px;
+}
+
+.ouragan-live__empty {
+  color: var(--ouragan-muted);
+}
+
+.ouragan-live__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.ouragan-live__list li {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--ouragan-line);
+}
+
+.ouragan-live__list li.is-key {
+  border-left: 3px solid var(--ouragan-red);
+  padding-left: 8px;
+}
+
+.ouragan-live__time {
+  flex: none;
+  font-weight: 800;
+  color: var(--ouragan-red);
+  font-size: 13px;
+  padding-top: 2px;
+}
+
+.ouragan-live__entry {
+  flex: 1;
+  min-width: 0;
+}
+
+.ouragan-live__entry p {
+  margin: 2px 0 6px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.ouragan-live__key {
+  color: var(--ouragan-red);
+  font-size: 12px;
+  display: block;
+}
+
+.ouragan-live__thumb {
+  max-width: 160px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.ouragan-live__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ouragan-live__actions button {
+  min-height: 32px;
+  font-size: 13px;
+  padding: 4px 10px;
+}
+
+.ouragan-live__actions button.is-danger {
+  color: var(--ouragan-red);
+}
+
+/* Tableau de bord : directs en cours */
+.ouragan-live-now {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ouragan-live-now__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 14px 16px;
+  border: 2px solid var(--ouragan-red);
+  border-radius: 10px;
+  background: var(--ouragan-card);
+  color: var(--theme-text);
+  text-decoration: none;
+}
+
+.ouragan-live-now__item span:last-child {
+  margin-left: auto;
+  color: var(--ouragan-red);
+  font-weight: 700;
+}

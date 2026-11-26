@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 
-import type { Article, Category, Radio } from '../payload-types'
+import type { Article, Category, Live, Radio } from '../payload-types'
 import { publicArticlesWhere } from './publicWhere'
 
 export const getClient = cache(async () => getPayload({ config: configPromise }))
@@ -131,6 +131,36 @@ export const getRadios = cache(async (): Promise<Radio[]> =>
       where: { active: { equals: true } },
       sort: 'order',
       limit: 20,
+      depth: 1,
+    })
+    return res.docs
+  }, []),
+)
+
+/** Directs en cours (bandeau de l'accueil, menu). */
+export const getActiveLives = cache(async (): Promise<Live[]> =>
+  buildSafe(async () => {
+    const payload = await getClient()
+    const res = await payload.find({
+      collection: 'lives',
+      where: { status: { equals: 'live' } },
+      sort: '-startedAt',
+      limit: 3,
+      depth: 0,
+    })
+    return res.docs
+  }, []),
+)
+
+/** Tous les directs visibles (page /direct). */
+export const getLives = cache(async (): Promise<Live[]> =>
+  buildSafe(async () => {
+    const payload = await getClient()
+    const res = await payload.find({
+      collection: 'lives',
+      where: { status: { not_equals: 'draft' } },
+      sort: '-startedAt',
+      limit: 50,
       depth: 1,
     })
     return res.docs

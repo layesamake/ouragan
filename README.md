@@ -20,6 +20,8 @@ Site d'actualités sénégalaises : **Next.js 16** (App Router) avec **Payload C
 
 - `/` : bandeau « En direct » (articles « Flash info »), bloc « À la une », un bloc par rubrique, colonne « Dernières infos ».
 - `/rubrique/[slug]` : articles d'une rubrique, paginés.
+- `/direct/[slug]` : **mode Live** d'un grand événement (élections, match, Magal…). Les messages apparaissent sans recharger : la page interroge `/direct/[slug]/flux` toutes les 10 s (réponse mise en cache 5 s par Cloudflare, hors `/api`). Un direct « En cours » s'affiche en bandeau rouge en haut de l'accueil et dans le menu. Côté admin : *Directs* → ouvrir le direct → bloc « Publier dans le direct ».
+- `/direct` : liste des directs.
 - `/article/[slug]` : article complet, partage WhatsApp / Facebook / X, « À lire aussi », données structurées `NewsArticle` pour Google.
 
 ## Démarrer en local

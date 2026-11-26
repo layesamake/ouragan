@@ -1,11 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { getCategories } from '../lib/queries'
+import { getActiveLives, getCategories } from '../lib/queries'
 import { todayLabel } from '../lib/format'
 
 export async function Header() {
-  const categories = (await getCategories()).filter((c) => c.showInNav !== false)
+  const [allCategories, lives] = await Promise.all([getCategories(), getActiveLives()])
+  const categories = allCategories.filter((c) => c.showInNav !== false)
 
   return (
     <header className="site-header">
@@ -35,6 +36,16 @@ export async function Header() {
           <li>
             <Link href="/">Accueil</Link>
           </li>
+          {lives.length > 0 && (
+            <li>
+              <Link
+                href={lives.length === 1 ? `/direct/${lives[0].slug}` : '/direct'}
+                className="rubriques__live"
+              >
+                <span className="dot dot--white" aria-hidden="true" /> Direct
+              </Link>
+            </li>
+          )}
           {categories.map((c) => (
             <li key={c.id}>
               <Link href={`/rubrique/${c.slug}`}>{c.name}</Link>
