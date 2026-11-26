@@ -74,3 +74,18 @@ export const getArticleBySlug = cache(async (slug: string): Promise<Article | nu
   })
   return res.docs[0] ?? null
 })
+
+/** Ajoute une lecture à l'article (écriture directe en base : pas de nouvelle version). */
+export async function incrementViews(article: { id: number | string; views?: number | null }) {
+  try {
+    const payload = await getClient()
+    await payload.db.updateOne({
+      collection: 'articles',
+      id: article.id,
+      data: { views: (article.views || 0) + 1 },
+      returning: false,
+    })
+  } catch (err) {
+    console.error('incrementViews', err)
+  }
+}

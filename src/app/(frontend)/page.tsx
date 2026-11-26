@@ -73,7 +73,7 @@ export default async function HomePage() {
                   color={category.color}
                 />
                 <div className="block__grid">
-                  <ArticleCard article={first} variant="card" showCategory={false} />
+                  <ArticleCard article={first} variant="card" />
                   <div className="block__list">
                     {rest.map((a) => (
                       <ArticleCard key={a.id} article={a} variant="row" showCategory={false} />

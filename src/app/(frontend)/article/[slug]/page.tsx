@@ -3,12 +3,14 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { after } from 'next/server'
 
 import { ArticleCard } from '../../../../components/ArticleCard'
 import { LatestList } from '../../../../components/LatestList'
 import { ShareBar } from '../../../../components/ShareBar'
 import { asAuthor, asCategory, asMedia, formatDateTime, imageUrl } from '../../../../lib/format'
-import { getArticleBySlug, getArticles } from '../../../../lib/queries'
+import { formatViews } from '../../../../lib/format'
+import { getArticleBySlug, getArticles, incrementViews } from '../../../../lib/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,6 +40,9 @@ export default async function ArticlePage({ params }: Props) {
   const { slug } = await params
   const article = await getArticleBySlug(slug)
   if (!article) notFound()
+
+  // Compte une lecture après l'envoi de la page (ne ralentit pas l'affichage).
+  after(() => incrementViews(article))
 
   const category = asCategory(article.category)
   const author = asAuthor(article.author)
@@ -96,6 +101,8 @@ export default async function ArticlePage({ params }: Props) {
             <time dateTime={article.publishedAt || undefined}>
               {formatDateTime(article.publishedAt)}
             </time>
+            {' · '}
+            {formatViews((article.views || 0) + 1)}
           </p>
           <ShareBar url={`${siteUrl}/article/${article.slug}`} title={article.title} />
         </header>

@@ -318,6 +318,11 @@ main {
   background: var(--brand-soft);
 }
 
+.card__media-link {
+  position: absolute;
+  inset: 0;
+}
+
 .card__media img {
   object-fit: cover;
 }
@@ -331,8 +336,9 @@ main {
 
 .card__title {
   font-family: var(--font-title);
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.25;
 }
 
 .card__excerpt {
@@ -345,9 +351,13 @@ main {
   overflow: hidden;
 }
 
-.card__time {
+.card__meta {
+  margin: 2px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .kicker {
@@ -368,6 +378,25 @@ main {
 .tag:hover {
   color: var(--tag);
   text-decoration: underline;
+}
+
+/* Étiquette de rubrique posée sur l'image (cartes de l'accueil) */
+.tag--overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  padding: 6px 12px;
+  background: rgba(6, 20, 30, 0.88);
+  color: #fff;
+  font-size: 13px;
+  letter-spacing: 0.6px;
+}
+
+.tag--overlay:hover {
+  color: #fff;
+  background: var(--tag);
+  text-decoration: none;
 }
 
 /* Grande carte « À la une » */

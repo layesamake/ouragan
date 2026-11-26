@@ -73,6 +73,15 @@ export const Articles: CollectionConfig = {
       },
     },
     {
+      name: 'views',
+      label: 'Lectures',
+      type: 'number',
+      defaultValue: 0,
+      // Incrémenté automatiquement à chaque visite de l'article ; non modifiable dans l'admin.
+      access: { create: () => false, update: () => false },
+      admin: { position: 'sidebar', readOnly: true },
+    },
+    {
       name: 'featured',
       label: 'À la une',
       type: 'checkbox',
