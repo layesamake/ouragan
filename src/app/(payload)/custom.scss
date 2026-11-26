@@ -680,3 +680,13 @@ html[data-theme='dark'] .ouragan-tile__value {
   color: var(--ouragan-red);
   font-weight: 700;
 }
+
+/* ---------- Article : chapô bien visible dans l'éditeur ---------- */
+.field-type.textarea #field-excerpt,
+textarea#field-excerpt {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.45;
+  border-left: 4px solid var(--ouragan-red);
+  background: var(--ouragan-soft);
+}

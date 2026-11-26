@@ -26,9 +26,11 @@ export const Media: CollectionConfig = {
       name: 'alt',
       label: 'Légende',
       type: 'text',
-      required: true,
+      // Facultative : une image collée dans un article est enregistrée tout de suite,
+      // la légende peut être ajoutée ensuite depuis la médiathèque.
       admin: {
-        description: 'Décrivez la photo en quelques mots (affiché sous l’image et lu par Google).',
+        description:
+          'Conseillé : décrivez la photo en quelques mots (affiché sous l’image et lu par Google).',
       },
     },
     { name: 'credit', label: 'Crédit photo', type: 'text' },

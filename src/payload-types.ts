@@ -139,9 +139,16 @@ export interface Article {
   id: number;
   title: string;
   /**
+   * Mis en valeur sous le titre, et repris quand l’article est partagé sur les réseaux.
+   */
+  excerpt?: string | null;
+  /**
    * Glissez-déposez une photo ici, ou cliquez pour en choisir une. Elle est compressée automatiquement.
    */
   cover?: (number | null) | Media;
+  /**
+   * Astuce : collez un lien YouTube, Facebook, TikTok… pour intégrer la vidéo, ou collez une image (Ctrl+V) pour l’insérer directement.
+   */
   content?: {
     root: {
       type: string;
@@ -161,10 +168,6 @@ export interface Article {
    * Petit mot au-dessus du titre (ex. : EXCLUSIF, VIDÉO, URGENT).
    */
   kicker?: string | null;
-  /**
-   * 1 à 3 phrases, affichées sous le titre et quand l’article est partagé sur les réseaux.
-   */
-  excerpt?: string | null;
   category: number | Category;
   /**
    * En grand en haut de la page d’accueil.
@@ -198,11 +201,10 @@ export interface Article {
 export interface Media {
   id: number;
   /**
-   * Décrivez la photo en quelques mots (affiché sous l’image et lu par Google).
+   * Conseillé : décrivez la photo en quelques mots (affiché sous l’image et lu par Google).
    */
-  alt: string;
+  alt?: string | null;
   credit?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -500,10 +502,10 @@ export interface PayloadMigration {
  */
 export interface ArticlesSelect<T extends boolean = true> {
   title?: T;
+  excerpt?: T;
   cover?: T;
   content?: T;
   kicker?: T;
-  excerpt?: T;
   category?: T;
   featured?: T;
   breaking?: T;
@@ -566,7 +568,6 @@ export interface LiveEntriesSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   credit?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
