@@ -4,6 +4,7 @@ import type { Payload } from 'payload'
 
 import { ensureDefaultCategories } from '@/lib/defaultCategories'
 import { blocksToLexical } from '@/lib/lexicalFormatter'
+import { findCoverImage } from '@/lib/newsImages'
 import {
   collectSource,
   extractArticleText,
@@ -19,7 +20,8 @@ import { slugify } from '@/lib/slugify'
  * GET /api/cron/generate-news — rédaction IA quotidienne.
  * Lit les derniers articles de 6 médias sénégalais, écarte les doublons et les
  * faits divers, les fait réécrire par Claude et les enregistre en BROUILLON
- * (sans photo) pour relecture dans /admin.
+ * pour relecture dans /admin, avec la photo d'origine de l'article (créditée au
+ * média), ou à défaut une photo sous licence libre (Wikimedia Commons, puis Pexels).
  * Protégée par l'en-tête « Authorization: Bearer <CRON_SECRET> ».
  */
 export const dynamic = 'force-dynamic'
@@ -39,6 +41,10 @@ type Detail = {
   status: 'created' | 'duplicate' | 'filtered' | 'too_short' | 'error' | 'not_processed'
   reason?: string
   id?: number
+  /** Crédit de la photo ajoutée, ou raison de son absence. */
+  cover?: string
+  /** Vidéos de l'article d'origine intégrées au brouillon. */
+  videos?: string[]
 }
 
 function isAuthorized(req: Request): boolean {
@@ -124,7 +130,10 @@ export async function GET(req: Request): Promise<Response> {
     skippedTooShort: 0,
     notProcessed: 0,
     errors: 0,
+    withCover: 0,
+    withVideo: 0,
   }
+  const usedPhotos = new Set<string>()
   const details: Detail[] = []
   const sources: {
     source: string
@@ -170,7 +179,7 @@ export async function GET(req: Request): Promise<Response> {
       details.push({ ...base, status: 'duplicate' })
       return false
     }
-    const { text } = await extractArticleText(item)
+    const { text, imageUrl, videos } = await extractArticleText(item)
     if (text.length < MIN_TEXT_CHARS) {
       summary.skippedTooShort++
       details.push({ ...base, status: 'too_short', reason: `${text.length} caractères` })
@@ -195,6 +204,22 @@ export async function GET(req: Request): Promise<Response> {
     }
     summary.created++ // réservé avant l'écriture, pour respecter le plafond entre médias
     try {
+      // Photo sous licence libre ; son absence n'empêche pas de créer le brouillon.
+      let cover: number | null = null
+      let coverNote: string | undefined
+      try {
+        const found = await findCoverImage(payload, {
+          source: { name: item.source.name, homepage: item.source.homepage, imageUrl },
+          subject: result.imageSubject,
+          queries: result.imageQueries,
+          alt: result.title,
+          used: usedPhotos,
+        })
+        cover = found?.id ?? null
+        coverNote = found?.credit ?? 'aucune photo libre trouvée'
+      } catch (err) {
+        coverNote = `photo : ${message(err)}`
+      }
       const doc = await payload.create({
         collection: 'articles',
         draft: true,
@@ -205,13 +230,27 @@ export async function GET(req: Request): Promise<Response> {
           slug: await uniqueSlug(payload, result.title),
           excerpt: result.excerpt,
           kicker: result.kicker || undefined,
-          content: blocksToLexical(result.blocks, { name: item.source.name, url: item.url }),
+          content: blocksToLexical(
+            result.blocks,
+            { name: item.source.name, url: item.url },
+            videos,
+          ),
           category: validCategory(result.categoryId),
           sourceName: item.source.name,
           sourceUrl: item.url,
+          ...(cover ? { cover } : {}),
         },
       })
-      details.push({ ...base, title: result.title, status: 'created', id: doc.id })
+      if (cover) summary.withCover++
+      if (videos.length) summary.withVideo++
+      details.push({
+        ...base,
+        title: result.title,
+        status: 'created',
+        id: doc.id,
+        cover: coverNote,
+        ...(videos.length ? { videos } : {}),
+      })
       return true
     } catch (err) {
       summary.created--

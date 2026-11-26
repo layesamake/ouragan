@@ -46,6 +46,18 @@ const linkNode = (url: string, text: string): LexicalNode => ({
   children: [textNode(text)],
 })
 
+const videoNode = (url: string): LexicalNode => ({
+  type: 'block',
+  version: 2,
+  format: '',
+  fields: {
+    id: randomUUID().replace(/-/g, '').slice(0, 24),
+    blockName: '',
+    blockType: 'video',
+    url,
+  },
+})
+
 /** Nettoie un texte : espaces, éventuel balisage Markdown laissé par l'IA. */
 const clean = (text: string): string =>
   text
@@ -56,17 +68,23 @@ const clean = (text: string): string =>
 
 /**
  * Transforme les blocs de l'IA en contenu Lexical (éditeur de Payload),
- * avec en dernière ligne « Source : <média> » et le lien vers l'article d'origine.
+ * avec les vidéos de l'article d'origine et, en dernière ligne, « Source : <média> » et le lien vers l'article d'origine.
  */
 export function blocksToLexical(
   blocks: ContentBlock[],
   source?: { name: string; url: string },
+  videos: string[] = [],
 ): LexicalContent {
   const children: LexicalNode[] = []
   for (const block of blocks) {
     const text = clean(block.text || '')
     if (!text) continue
     children.push(block.type === 'heading' ? headingNode(text) : paragraphNode([textNode(text)]))
+  }
+  // Vidéos de l'article d'origine : après le premier paragraphe.
+  if (videos.length) {
+    const at = children.findIndex((n) => n.type === 'paragraph') + 1
+    children.splice(at, 0, ...videos.map(videoNode))
   }
   if (source) {
     children.push(paragraphNode([textNode('Source : ', 2), linkNode(source.url, source.name)]))

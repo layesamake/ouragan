@@ -14,6 +14,10 @@ export type RewriteResult =
   | {
       skip: false
       kicker: string
+      /** Personne ou lieu principal, tel que nommé sur Wikipédia (photo Wikimedia Commons). */
+      imageSubject: string | null
+      /** Recherches de photo thématique (en anglais), de la plus précise à la plus large. */
+      imageQueries: string[]
       title: string
       excerpt: string
       categoryId: number
@@ -50,10 +54,15 @@ RÉDACTION
 - Chapô : l'essentiel de l'information en deux phrases.
 - Surtitre : un ou deux mots en majuscules (ex. POLITIQUE, ÉCONOMIE, DIPLOMATIE, JUSTICE, SANTÉ).
 - Rubrique : l'id de la rubrique la plus pertinente dans la liste fournie.
+- Photo, sujet : la personne ou le lieu principal de l'article, écrit comme le titre de sa page Wikipédia
+  (ex. "Ousmane Sonko", "Bassirou Diomaye Faye", "Assemblée nationale du Sénégal", "Kédougou", "Stade Abdoulaye-Wade").
+  null s'il n'y en a pas de clairement identifiable.
+- Photo, secours : 2 ou 3 recherches EN ANGLAIS pour une banque de photos libres, de la plus précise à la plus large
+  (ex. ["gold mine Senegal", "gold mining", "mining industry"]). Une scène, un lieu ou un objet, jamais une personne nommée.
 
 FORMAT DE RÉPONSE
 Réponds uniquement par un objet JSON, sans texte autour ni balises Markdown :
-{"skip": false, "reason": null, "kicker": "…", "title": "…", "excerpt": "…", "categoryId": 1, "blocks": [{"type": "paragraph", "text": "…"}, {"type": "heading", "text": "…"}, {"type": "paragraph", "text": "…"}]}
+{"skip": false, "reason": null, "kicker": "…", "title": "…", "excerpt": "…", "categoryId": 1, "imageSubject": "…", "imageQueries": ["…", "…"], "blocks": [{"type": "paragraph", "text": "…"}, {"type": "heading", "text": "…"}, {"type": "paragraph", "text": "…"}]}
 Pour rejeter : {"skip": true, "reason": "…"}`
 
 /** Extrait l'objet JSON de la réponse, même entouré de ```json … ``` ou de texte. */
@@ -130,6 +139,10 @@ ${sourceText}
     title: title.slice(0, 120),
     excerpt: str(data.excerpt),
     categoryId: Number(data.categoryId),
+    imageSubject: str(data.imageSubject) || null,
+    imageQueries: Array.isArray(data.imageQueries)
+      ? data.imageQueries.map(str).filter(Boolean).slice(0, 3)
+      : [],
     blocks,
   }
 }
