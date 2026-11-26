@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio'
 import Parser from 'rss-parser'
 
 import { HTTP_HEADERS, HTTP_TIMEOUT_MS, normalizeUrl, type NewsSource } from './newsSources'
+import { getVideoEmbed } from './videoEmbed'
 
 /** Article repéré dans le flux (ou sur la page d'accueil) d'un média. */
 export type SourceItem = {
@@ -12,6 +13,8 @@ export type SourceItem = {
   categories: string[]
   /** Corps complet fourni par le flux (<content:encoded>), en HTML. */
   contentHtml?: string
+  /** Photo de l'article annoncée par le flux (enclosure, media:content). */
+  imageUrl?: string
 }
 
 /** Au-delà, le texte fourni par le flux suffit : pas besoin d'ouvrir la page. */
@@ -30,13 +33,123 @@ async function fetchText(url: string, timeoutMs = HTTP_TIMEOUT_MS): Promise<stri
   return res.text()
 }
 
+type MediaTag = { $?: { url?: string; medium?: string; type?: string } }
 type FeedItem = {
   'content:encoded'?: string
   categories?: (string | { _: string })[]
+  mediaContent?: MediaTag
+  mediaThumbnail?: MediaTag
 }
 const parser: Parser<object, FeedItem> = new Parser({
-  customFields: { item: ['content:encoded'] },
+  customFields: {
+    item: [
+      'content:encoded',
+      ['media:content', 'mediaContent'],
+      ['media:thumbnail', 'mediaThumbnail'],
+    ],
+  },
 })
+
+/** Écarte logos, icônes, avatars et pixels de suivi. */
+const isPlausiblePhoto = (url: string | undefined | null): url is string =>
+  Boolean(url) &&
+  /^https?:\/\//i.test(url!) &&
+  !/\.(svg|gif|ico)(\?|$)/i.test(url!) &&
+  !/(logo|avatar|icon|favicon|placeholder|default[-_]|gravatar|pixel|sprite|banner-pub|\/pub\/)/i.test(
+    url!,
+  )
+
+/** Adresse absolue d'une image, ou undefined si elle ne ressemble pas à une photo. */
+const photoUrl = (raw: string | undefined | null, base: string): string | undefined => {
+  if (!raw) return undefined
+  try {
+    const abs = new URL(raw.trim(), base).toString()
+    return isPlausiblePhoto(abs) ? abs : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/** Première image d'un fragment HTML. */
+const firstImage = (html: string, base: string): string | undefined => {
+  const $ = cheerio.load(html)
+  for (const img of $('img').toArray()) {
+    const src = $(img).attr('data-src') || $(img).attr('src')
+    const url = photoUrl(src, base)
+    if (url) return url
+  }
+  return undefined
+}
+
+/** Vidéos intégrées au plus par article. */
+const MAX_VIDEOS = 2
+
+/** Lien « normal » d'une vidéo à partir de l'adresse de son lecteur intégré. */
+function videoFromEmbed(raw: string, base: string): string | null {
+  let url: URL
+  try {
+    url = new URL(raw.trim(), base)
+  } catch {
+    return null
+  }
+  const host = url.hostname.replace(/^www\./, '')
+  const parts = url.pathname.split('/').filter(Boolean)
+  if (
+    (host === 'youtube.com' || host === 'youtube-nocookie.com') &&
+    parts[0] === 'embed' &&
+    parts[1]
+  ) {
+    return `https://www.youtube.com/watch?v=${parts[1]}`
+  }
+  if (host === 'facebook.com' && parts[0] === 'plugins') return url.searchParams.get('href')
+  if (host === 'dailymotion.com' && parts[0] === 'embed' && parts[2]) {
+    return `https://www.dailymotion.com/video/${parts[2]}`
+  }
+  if (host === 'geo.dailymotion.com') {
+    const id = url.searchParams.get('video')
+    return id ? `https://www.dailymotion.com/video/${id}` : null
+  }
+  return url.toString()
+}
+
+/**
+ * Vidéos (YouTube, Facebook, TikTok, Instagram, Vimeo, Dailymotion) intégrées dans le
+ * corps d'un article, sous forme de liens reconnus par le bloc Vidéo du site.
+ */
+export function extractVideos(html: string, base: string): string[] {
+  const $ = cheerio.load(html)
+  const found: string[] = []
+  const add = (raw: string | undefined | null) => {
+    if (!raw) return
+    const url = videoFromEmbed(raw, base)
+    if (url && getVideoEmbed(url) && !found.includes(url)) found.push(url)
+  }
+  $('iframe').each((_, el) => {
+    add($(el).attr('src') || $(el).attr('data-src') || $(el).attr('data-lazy-src'))
+  })
+  $('blockquote.tiktok-embed').each((_, el) => add($(el).attr('cite')))
+  $('blockquote.instagram-media').each((_, el) => add($(el).attr('data-instgrm-permalink')))
+  // Intégrations WordPress (le lien est écrit seul dans le bloc)
+  $('.wp-block-embed__wrapper, .wp-block-embed-youtube, .wp-block-embed-facebook').each((_, el) =>
+    add($(el).text().trim().split(/\s+/)[0]),
+  )
+  return found.slice(0, MAX_VIDEOS)
+}
+
+/** Photo de partage (og:image / twitter:image) d'une page. */
+const pageImage = (html: string, base: string): string | undefined => {
+  const $ = cheerio.load(html)
+  for (const sel of [
+    'meta[property="og:image"]',
+    'meta[name="og:image"]',
+    'meta[name="twitter:image"]',
+    'meta[property="twitter:image"]',
+  ]) {
+    const url = photoUrl($(sel).attr('content'), base)
+    if (url) return url
+  }
+  return undefined
+}
 
 const XML_ENTITIES = new Set(['amp', 'lt', 'gt', 'quot', 'apos'])
 
@@ -67,6 +180,10 @@ async function fromRss(source: NewsSource): Promise<SourceItem[]> {
       title: it.title.trim(),
       categories: (it.categories || []).map((c) => (typeof c === 'string' ? c : c?._ || '')),
       contentHtml: it['content:encoded'] || undefined,
+      imageUrl:
+        (it.enclosure?.type?.startsWith('image') ? photoUrl(it.enclosure.url, url) : undefined) ||
+        photoUrl(it.mediaContent?.$?.url, url) ||
+        photoUrl(it.mediaThumbnail?.$?.url, url),
     })
   }
   return items
@@ -136,28 +253,49 @@ export function htmlToText(html: string): string {
  */
 export async function extractArticleText(
   item: SourceItem,
-): Promise<{ text: string; via: 'rss' | 'page' }> {
+): Promise<{ text: string; via: 'rss' | 'page'; imageUrl?: string; videos: string[] }> {
   if (item.contentHtml) {
     const text = htmlToText(item.contentHtml)
-    if (text.length > RSS_CONTENT_MIN_CHARS) return { text, via: 'rss' }
+    if (text.length > RSS_CONTENT_MIN_CHARS) {
+      let imageUrl = item.imageUrl || firstImage(item.contentHtml, item.url)
+      if (!imageUrl) {
+        // Le flux ne donne pas de photo : on la cherche dans la page (og:image).
+        try {
+          imageUrl = pageImage(await fetchText(item.url, item.source.timeoutMs), item.url)
+        } catch {
+          // sans photo d'origine
+        }
+      }
+      return { text, via: 'rss', imageUrl, videos: extractVideos(item.contentHtml, item.url) }
+    }
   }
   const html = await fetchText(item.url, item.source.timeoutMs)
   let text = ''
+  let articleImage: string | undefined
   try {
     const article = await extractFromHtml(html, item.url)
     if (article?.content) text = htmlToText(article.content)
+    articleImage =
+      photoUrl(article?.image, item.url) ||
+      (article?.content ? firstImage(article.content, item.url) : undefined)
   } catch {
     // on passe au secours
   }
-  if (text.length < MIN_TEXT_CHARS) {
-    const $ = cheerio.load(html)
-    for (const sel of item.source.contentSelectors) {
-      const fragment = $(sel).first().html()
-      if (!fragment) continue
+  // Corps de l'article dans la page (pour le texte de secours et les vidéos).
+  const $ = cheerio.load(html)
+  let bodyHtml = ''
+  for (const sel of item.source.contentSelectors) {
+    const fragment = $(sel).first().html()
+    if (!fragment) continue
+    if (!bodyHtml) bodyHtml = fragment
+    if (text.length < MIN_TEXT_CHARS) {
       const candidate = htmlToText(fragment)
-      if (candidate.length > text.length) text = candidate
-      if (text.length >= MIN_TEXT_CHARS) break
+      if (candidate.length > text.length) {
+        text = candidate
+        bodyHtml = fragment
+      }
     }
   }
-  return { text, via: 'page' }
+  const imageUrl = pageImage(html, item.url) || item.imageUrl || articleImage
+  return { text, via: 'page', imageUrl, videos: bodyHtml ? extractVideos(bodyHtml, item.url) : [] }
 }
