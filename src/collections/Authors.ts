@@ -13,7 +13,7 @@ export const Authors: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    group: 'Contenu',
+    group: 'Réglages',
   },
   access: { read: () => true },
   fields: [

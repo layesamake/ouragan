@@ -58,12 +58,31 @@ export default buildConfig({
         { rel: 'apple-touch-icon', type: 'image/png', url: '/icon.png' },
       ],
     },
+    // Garde le rédacteur connecté tant que l'onglet est ouvert.
+    autoRefresh: true,
+    // Pas d'appel à Gravatar : avatar simple, sans service externe.
+    avatar: 'default',
+    components: {
+      graphics: {
+        Logo: '/components/admin/Graphics#Logo',
+        Icon: '/components/admin/Graphics#Icon',
+      },
+      afterNavLinks: ['/components/admin/StatsNavLink#StatsNavLink'],
+      views: {
+        dashboard: { Component: '/components/admin/Dashboard#Dashboard' },
+        statistiques: {
+          Component: '/components/admin/Statistics#Statistics',
+          path: '/statistiques',
+          meta: { title: 'Statistiques' },
+        },
+      },
+    },
   },
   i18n: {
     supportedLanguages: { fr },
     fallbackLanguage: 'fr',
   },
-  collections: [Articles, Categories, Authors, Media, Radios, Users],
+  collections: [Articles, Media, Categories, Authors, Radios, Users],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

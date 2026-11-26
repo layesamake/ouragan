@@ -59,212 +59,221 @@ export type SupportedTimezones =
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
   | 'Pacific/Auckland'
-  | 'Pacific/Fiji'
+  | 'Pacific/Fiji';
 
 export interface Config {
   auth: {
-    users: UserAuthOperations
-  }
-  blocks: {}
+    users: UserAuthOperations;
+  };
+  blocks: {};
   collections: {
-    articles: Article
-    categories: Category
-    authors: Author
-    media: Media
-    radios: Radio
-    users: User
-    'payload-kv': PayloadKv
-    'payload-locked-documents': PayloadLockedDocument
-    'payload-preferences': PayloadPreference
-    'payload-migrations': PayloadMigration
-  }
-  collectionsJoins: {}
+    articles: Article;
+    media: Media;
+    categories: Category;
+    authors: Author;
+    radios: Radio;
+    users: User;
+    'payload-kv': PayloadKv;
+    'payload-locked-documents': PayloadLockedDocument;
+    'payload-preferences': PayloadPreference;
+    'payload-migrations': PayloadMigration;
+  };
+  collectionsJoins: {};
   collectionsSelect: {
-    articles: ArticlesSelect<false> | ArticlesSelect<true>
-    categories: CategoriesSelect<false> | CategoriesSelect<true>
-    authors: AuthorsSelect<false> | AuthorsSelect<true>
-    media: MediaSelect<false> | MediaSelect<true>
-    radios: RadiosSelect<false> | RadiosSelect<true>
-    users: UsersSelect<false> | UsersSelect<true>
-    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>
-    'payload-locked-documents':
-      PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>
-    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>
-    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>
-  }
+    articles: ArticlesSelect<false> | ArticlesSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    authors: AuthorsSelect<false> | AuthorsSelect<true>;
+    radios: RadiosSelect<false> | RadiosSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
+  };
   db: {
-    defaultIDType: number
-  }
-  fallbackLocale: null
-  globals: {}
-  globalsSelect: {}
-  locale: null
+    defaultIDType: number;
+  };
+  fallbackLocale: null;
+  globals: {};
+  globalsSelect: {};
+  locale: null;
   widgets: {
-    collections: CollectionsWidget
-  }
-  user: User
+    collections: CollectionsWidget;
+  };
+  user: User;
   jobs: {
-    tasks: unknown
-    workflows: unknown
-  }
+    tasks: unknown;
+    workflows: unknown;
+  };
 }
 export interface UserAuthOperations {
   forgotPassword: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   login: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   registerFirstUser: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   unlock: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "articles".
  */
 export interface Article {
-  id: number
-  title: string
+  id: number;
+  title: string;
   /**
-   * Petit texte au-dessus du titre (ex. : EXCLUSIF, VIDÉO, URGENT).
+   * Glissez-déposez une photo ici, ou cliquez pour en choisir une. Elle est compressée automatiquement.
    */
-  kicker?: string | null
-  /**
-   * Résumé de 1 à 3 phrases, affiché sous le titre et dans les listes.
-   */
-  excerpt?: string | null
-  cover?: (number | null) | Media
+  cover?: (number | null) | Media;
   content?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Petit mot au-dessus du titre (ex. : EXCLUSIF, VIDÉO, URGENT).
+   */
+  kicker?: string | null;
+  /**
+   * 1 à 3 phrases, affichées sous le titre et quand l’article est partagé sur les réseaux.
+   */
+  excerpt?: string | null;
+  category: number | Category;
+  /**
+   * En grand en haut de la page d’accueil.
+   */
+  featured?: boolean | null;
+  /**
+   * Dans le bandeau défilant « En direct ».
+   */
+  breaking?: boolean | null;
+  /**
+   * Vide = publié tout de suite. Pour programmer : choisissez une date future puis cliquez sur « Publier » ; l’article apparaîtra tout seul à cette heure-là.
+   */
+  publishedAt?: string | null;
+  views?: number | null;
+  author?: (number | null) | Author;
   /**
    * Généré automatiquement si laissé vide.
    */
-  slug?: string | null
-  category: number | Category
-  author?: (number | null) | Author
-  publishedAt?: string | null
-  views?: number | null
-  /**
-   * Mettre en avant en haut de la page d'accueil.
-   */
-  featured?: boolean | null
-  /**
-   * Afficher dans le bandeau défilant « En direct ».
-   */
-  breaking?: boolean | null
-  updatedAt: string
-  createdAt: string
-  _status?: ('draft' | 'published') | null
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
+ * Toutes vos photos. Utilisez la recherche pour en retrouver une.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
-  id: number
-  alt: string
-  credit?: string | null
-  _objectKey?: string | null
-  updatedAt: string
-  createdAt: string
-  url?: string | null
-  thumbnailURL?: string | null
-  filename?: string | null
-  mimeType?: string | null
-  filesize?: number | null
-  width?: number | null
-  height?: number | null
-  focalX?: number | null
-  focalY?: number | null
+  id: number;
+  /**
+   * Décrivez la photo en quelques mots (affiché sous l’image et lu par Google).
+   */
+  alt: string;
+  credit?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
   sizes?: {
     thumbnail?: {
-      url?: string | null
-      width?: number | null
-      height?: number | null
-      mimeType?: string | null
-      filesize?: number | null
-      filename?: string | null
-    }
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
     card?: {
-      url?: string | null
-      width?: number | null
-      height?: number | null
-      mimeType?: string | null
-      filesize?: number | null
-      filename?: string | null
-    }
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
     hero?: {
-      url?: string | null
-      width?: number | null
-      height?: number | null
-      mimeType?: string | null
-      filesize?: number | null
-      filename?: string | null
-    }
-  }
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
-  id: number
-  name: string
+  id: number;
+  name: string;
   /**
    * Généré automatiquement si laissé vide.
    */
-  slug?: string | null
-  description?: string | null
+  slug?: string | null;
+  description?: string | null;
   /**
    * Couleur hexadécimale de la rubrique (ex. #e63946).
    */
-  color?: string | null
-  order?: number | null
-  showInNav?: boolean | null
-  showOnHome?: boolean | null
-  updatedAt: string
-  createdAt: string
+  color?: string | null;
+  order?: number | null;
+  showInNav?: boolean | null;
+  showOnHome?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "authors".
  */
 export interface Author {
-  id: number
-  name: string
+  id: number;
+  name: string;
   /**
    * Généré automatiquement si laissé vide.
    */
-  slug?: string | null
+  slug?: string | null;
   /**
    * Ex. : Journaliste, Correspondant à Thiès
    */
-  role?: string | null
-  photo?: (number | null) | Media
-  bio?: string | null
-  updatedAt: string
-  createdAt: string
+  role?: string | null;
+  photo?: (number | null) | Media;
+  bio?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Radios proposées en écoute dans le bloc « Ouragan Radios » de la page d’accueil.
@@ -273,319 +282,318 @@ export interface Author {
  * via the `definition` "radios".
  */
 export interface Radio {
-  id: number
-  name: string
-  logo?: (number | null) | Media
+  id: number;
+  name: string;
+  logo?: (number | null) | Media;
   /**
    * Adresse du flux (MP3/AAC/HLS) fournie par la radio, en https. Il est lu directement sur le site.
    */
-  streamUrl?: string | null
+  streamUrl?: string | null;
   /**
    * Utilisée seulement si aucun flux n’est renseigné : le bouton ouvre cette page.
    */
-  liveUrl?: string | null
-  order?: number | null
-  active?: boolean | null
-  updatedAt: string
-  createdAt: string
+  liveUrl?: string | null;
+  order?: number | null;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: number
-  name?: string | null
-  updatedAt: string
-  createdAt: string
-  email: string
-  resetPasswordToken?: string | null
-  resetPasswordExpiration?: string | null
-  salt?: string | null
-  hash?: string | null
-  resetPasswordRequestedAt?: string | null
-  loginAttempts?: number | null
-  lockUntil?: string | null
+  id: number;
+  name?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
   sessions?:
     | {
-        id: string
-        createdAt?: string | null
-        expiresAt: string
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
       }[]
-    | null
-  password?: string | null
-  collection: 'users'
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: number
-  key: string
+  id: number;
+  key: string;
   data:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
+    | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: number
+  id: number;
   document?:
     | ({
-        relationTo: 'articles'
-        value: number | Article
+        relationTo: 'articles';
+        value: number | Article;
       } | null)
     | ({
-        relationTo: 'categories'
-        value: number | Category
+        relationTo: 'media';
+        value: number | Media;
       } | null)
     | ({
-        relationTo: 'authors'
-        value: number | Author
+        relationTo: 'categories';
+        value: number | Category;
       } | null)
     | ({
-        relationTo: 'media'
-        value: number | Media
+        relationTo: 'authors';
+        value: number | Author;
       } | null)
     | ({
-        relationTo: 'radios'
-        value: number | Radio
+        relationTo: 'radios';
+        value: number | Radio;
       } | null)
     | ({
-        relationTo: 'users'
-        value: number | User
-      } | null)
-  globalSlug?: string | null
+        relationTo: 'users';
+        value: number | User;
+      } | null);
+  globalSlug?: string | null;
   user: {
-    relationTo: 'users'
-    value: number | User
-  }
-  updatedAt: string
-  createdAt: string
+    relationTo: 'users';
+    value: number | User;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: number
+  id: number;
   user: {
-    relationTo: 'users'
-    value: number | User
-  }
-  key?: string | null
+    relationTo: 'users';
+    value: number | User;
+  };
+  key?: string | null;
   value?:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
-  updatedAt: string
-  createdAt: string
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: number
-  name?: string | null
-  batch?: number | null
-  updatedAt: string
-  createdAt: string
+  id: number;
+  name?: string | null;
+  batch?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "articles_select".
  */
 export interface ArticlesSelect<T extends boolean = true> {
-  title?: T
-  kicker?: T
-  excerpt?: T
-  cover?: T
-  content?: T
-  slug?: T
-  category?: T
-  author?: T
-  publishedAt?: T
-  views?: T
-  featured?: T
-  breaking?: T
-  updatedAt?: T
-  createdAt?: T
-  _status?: T
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories_select".
- */
-export interface CategoriesSelect<T extends boolean = true> {
-  name?: T
-  slug?: T
-  description?: T
-  color?: T
-  order?: T
-  showInNav?: T
-  showOnHome?: T
-  updatedAt?: T
-  createdAt?: T
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "authors_select".
- */
-export interface AuthorsSelect<T extends boolean = true> {
-  name?: T
-  slug?: T
-  role?: T
-  photo?: T
-  bio?: T
-  updatedAt?: T
-  createdAt?: T
+  title?: T;
+  cover?: T;
+  content?: T;
+  kicker?: T;
+  excerpt?: T;
+  category?: T;
+  featured?: T;
+  breaking?: T;
+  publishedAt?: T;
+  views?: T;
+  author?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
-  alt?: T
-  credit?: T
-  _objectKey?: T
-  updatedAt?: T
-  createdAt?: T
-  url?: T
-  thumbnailURL?: T
-  filename?: T
-  mimeType?: T
-  filesize?: T
-  width?: T
-  height?: T
-  focalX?: T
-  focalY?: T
+  alt?: T;
+  credit?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
   sizes?:
     | T
     | {
         thumbnail?:
           | T
           | {
-              url?: T
-              width?: T
-              height?: T
-              mimeType?: T
-              filesize?: T
-              filename?: T
-            }
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
         card?:
           | T
           | {
-              url?: T
-              width?: T
-              height?: T
-              mimeType?: T
-              filesize?: T
-              filename?: T
-            }
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
         hero?:
           | T
           | {
-              url?: T
-              width?: T
-              height?: T
-              mimeType?: T
-              filesize?: T
-              filename?: T
-            }
-      }
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  color?: T;
+  order?: T;
+  showInNav?: T;
+  showOnHome?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "authors_select".
+ */
+export interface AuthorsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  role?: T;
+  photo?: T;
+  bio?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "radios_select".
  */
 export interface RadiosSelect<T extends boolean = true> {
-  name?: T
-  logo?: T
-  streamUrl?: T
-  liveUrl?: T
-  order?: T
-  active?: T
-  updatedAt?: T
-  createdAt?: T
+  name?: T;
+  logo?: T;
+  streamUrl?: T;
+  liveUrl?: T;
+  order?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  name?: T
-  updatedAt?: T
-  createdAt?: T
-  email?: T
-  resetPasswordToken?: T
-  resetPasswordExpiration?: T
-  salt?: T
-  hash?: T
-  resetPasswordRequestedAt?: T
-  loginAttempts?: T
-  lockUntil?: T
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
   sessions?:
     | T
     | {
-        id?: T
-        createdAt?: T
-        expiresAt?: T
-      }
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
-  key?: T
-  data?: T
+  key?: T;
+  data?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
-  document?: T
-  globalSlug?: T
-  user?: T
-  updatedAt?: T
-  createdAt?: T
+  document?: T;
+  globalSlug?: T;
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences_select".
  */
 export interface PayloadPreferencesSelect<T extends boolean = true> {
-  user?: T
-  key?: T
-  value?: T
-  updatedAt?: T
-  createdAt?: T
+  user?: T;
+  key?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations_select".
  */
 export interface PayloadMigrationsSelect<T extends boolean = true> {
-  name?: T
-  batch?: T
-  updatedAt?: T
-  createdAt?: T
+  name?: T;
+  batch?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -593,17 +601,18 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface CollectionsWidget {
   data?: {
-    [k: string]: unknown
-  }
-  width: 'full'
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-  [k: string]: unknown
+  [k: string]: unknown;
 }
+
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}

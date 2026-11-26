@@ -21,6 +21,12 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { ShareButtons as ShareButtons_d6bb43374fbbf4d1137bf03b3e7052d1 } from '../../../components/admin/ShareButtons'
+import { Icon as Icon_80ebcb12978a9db9a1c04af0af89c7ec } from '../../../components/admin/Graphics'
+import { Logo as Logo_80ebcb12978a9db9a1c04af0af89c7ec } from '../../../components/admin/Graphics'
+import { StatsNavLink as StatsNavLink_3c443f0c28ffcebbd081f1f092e5f5c9 } from '../../../components/admin/StatsNavLink'
+import { Dashboard as Dashboard_16b88e9b8c48e393fa86591406efd08f } from '../../../components/admin/Dashboard'
+import { Statistics as Statistics_1f9b7861cef4729bc3547a9394ffa53b } from '../../../components/admin/Statistics'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 
@@ -49,6 +55,12 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/components/admin/ShareButtons#ShareButtons": ShareButtons_d6bb43374fbbf4d1137bf03b3e7052d1,
+  "/components/admin/Graphics#Icon": Icon_80ebcb12978a9db9a1c04af0af89c7ec,
+  "/components/admin/Graphics#Logo": Logo_80ebcb12978a9db9a1c04af0af89c7ec,
+  "/components/admin/StatsNavLink#StatsNavLink": StatsNavLink_3c443f0c28ffcebbd081f1f092e5f5c9,
+  "/components/admin/Dashboard#Dashboard": Dashboard_16b88e9b8c48e393fa86591406efd08f,
+  "/components/admin/Statistics#Statistics": Statistics_1f9b7861cef4729bc3547a9394ffa53b,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24
 }

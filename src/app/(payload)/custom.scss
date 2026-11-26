@@ -1,0 +1,462 @@
+/* =========================================================
+   Administration Ouragan.sn — couleurs de la marque et confort
+   (tableau de bord, statistiques, partage, usage sur téléphone)
+   ========================================================= */
+
+:root {
+  --ouragan-blue: #27a3d9;
+  --ouragan-blue-dark: #1a7aa8;
+  --ouragan-ink: #062c43;
+  --ouragan-red: #ec1a27;
+  --ouragan-soft: #e6f7fd;
+  --ouragan-card: var(--theme-elevation-0);
+  --ouragan-line: var(--theme-elevation-100);
+  --ouragan-muted: var(--theme-elevation-500);
+}
+
+html[data-theme='dark'] {
+  --ouragan-soft: #0b3550;
+}
+
+/* ---------- Boutons principaux aux couleurs du logo ---------- */
+.btn--style-primary {
+  --bg-color: var(--ouragan-blue-dark);
+  --hover-bg: var(--ouragan-ink);
+  --color: #fff;
+}
+
+/* ---------- Menu de gauche ---------- */
+.ouragan-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.ouragan-logo {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.nav-group__label,
+.nav-group__toggle {
+  color: var(--ouragan-blue-dark);
+  font-weight: 700;
+}
+
+.ouragan-nav-link {
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+/* ---------- Tableau de bord ---------- */
+.ouragan-dash {
+  padding-top: 24px;
+  padding-bottom: 48px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.9rem;
+    line-height: 1.2;
+  }
+
+  h2 {
+    margin: 0 0 12px;
+    font-size: 1.1rem;
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+.ouragan-dash__date {
+  margin: 4px 0 0;
+  color: var(--ouragan-muted);
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+.ouragan-dash__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.ouragan-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--ouragan-line);
+  background: var(--ouragan-card);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  transition:
+    transform 0.1s,
+    box-shadow 0.1s;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(6, 44, 67, 0.12);
+  }
+
+  span {
+    font-size: 1.3rem;
+  }
+}
+
+.ouragan-dash .ouragan-action--primary {
+  background: var(--ouragan-red);
+  border-color: var(--ouragan-red);
+  color: #fff;
+  font-size: 1.15rem;
+  padding: 14px 28px;
+}
+
+.ouragan-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.ouragan-tile {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--ouragan-soft);
+  border-left: 4px solid var(--ouragan-blue);
+  text-decoration: none !important;
+}
+
+.ouragan-tile--link:hover {
+  border-left-color: var(--ouragan-red);
+}
+
+.ouragan-tile__value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--ouragan-blue-dark);
+}
+
+html[data-theme='dark'] .ouragan-tile__value {
+  color: var(--ouragan-blue);
+}
+
+.ouragan-tile__label {
+  color: var(--ouragan-muted);
+  font-size: 0.9rem;
+}
+
+.ouragan-dash__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.ouragan-card {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--ouragan-line);
+  background: var(--ouragan-card);
+}
+
+.ouragan-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--ouragan-line);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    > a {
+      font-weight: 600;
+      text-decoration: none;
+
+      &:hover {
+        color: var(--ouragan-blue-dark);
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.ouragan-list--ranked {
+  counter-reset: rank;
+
+  li {
+    position: relative;
+    padding-left: 36px;
+    counter-increment: rank;
+
+    &::before {
+      content: counter(rank);
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--ouragan-blue);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: grid;
+      place-items: center;
+    }
+  }
+}
+
+.ouragan-meta {
+  color: var(--ouragan-muted);
+  font-size: 0.85rem;
+
+  a {
+    text-decoration: underline;
+  }
+}
+
+.ouragan-badge {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--ouragan-blue);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.ouragan-badge--live {
+  background: var(--ouragan-red);
+}
+
+.ouragan-badge--scheduled {
+  background: #b7791f;
+}
+
+.ouragan-empty {
+  color: var(--ouragan-muted);
+  margin: 0;
+}
+
+.ouragan-more {
+  display: inline-block;
+  margin-top: 12px;
+  font-weight: 600;
+  color: var(--ouragan-blue-dark) !important;
+}
+
+/* ---------- Statistiques ---------- */
+.ouragan-bars {
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  align-items: end;
+  gap: 4px;
+  height: 180px;
+}
+
+.ouragan-bars__col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.ouragan-bars__bar {
+  width: 100%;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+  background: var(--ouragan-blue);
+}
+
+.ouragan-bars__value {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.ouragan-bars__label {
+  margin-top: 4px;
+  font-size: 0.65rem;
+  color: var(--ouragan-muted);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+
+.ouragan-cats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    margin-bottom: 12px;
+  }
+}
+
+.ouragan-cats__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.ouragan-cats__track {
+  display: block;
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+  background: var(--ouragan-line);
+  overflow: hidden;
+}
+
+.ouragan-cats__fill {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+}
+
+/* ---------- Partage (colonne de droite d'un article) ---------- */
+.ouragan-share {
+  margin-bottom: 24px;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--ouragan-soft);
+
+  p {
+    margin: 0 0 8px;
+  }
+}
+
+.ouragan-share--empty p:not(.ouragan-share__label) {
+  color: var(--ouragan-muted);
+  font-size: 0.85rem;
+}
+
+.ouragan-share__label {
+  font-weight: 700;
+}
+
+.ouragan-share__views {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.ouragan-share__note {
+  font-size: 0.85rem;
+  color: #b7791f;
+}
+
+.ouragan-share__buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ouragan-share__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--ouragan-line);
+  border-radius: 8px;
+  background: var(--ouragan-card);
+  color: var(--theme-text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--ouragan-blue);
+  }
+}
+
+.ouragan-share__btn--wa {
+  background: #25d366;
+  border-color: #25d366;
+  color: #fff;
+}
+
+.ouragan-share__btn--fb {
+  background: #1877f2;
+  border-color: #1877f2;
+  color: #fff;
+}
+
+/* ---------- Écrans plus larges ---------- */
+@media (min-width: 768px) {
+  .ouragan-tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .ouragan-dash__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ouragan-card--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------- Téléphone : cibles plus grandes pour publier depuis le terrain ---------- */
+@media (max-width: 767px) {
+  .ouragan-dash h1 {
+    font-size: 1.5rem;
+  }
+
+  .ouragan-dash__actions {
+    flex-direction: column;
+  }
+
+  .ouragan-action {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .btn {
+    min-height: 44px;
+  }
+
+  .field-type input,
+  .field-type textarea {
+    font-size: 16px; /* évite le zoom automatique sur iPhone */
+  }
+
+  /* Sur téléphone, l'aperçu en direct prendrait toute la place : on le masque
+     (le bouton « ouvrir dans un nouvel onglet » reste disponible). */
+  .live-preview-toggler,
+  .live-preview-window {
+    display: none !important;
+  }
+
+  .collection-edit--is-live-previewing .document-fields,
+  .collection-edit--is-live-previewing .document-fields__main {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}

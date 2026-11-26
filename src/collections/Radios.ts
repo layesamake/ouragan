@@ -22,7 +22,7 @@ export const Radios: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'order', 'active', 'streamUrl'],
-    group: 'Contenu',
+    group: 'Réglages',
     description: 'Radios proposées en écoute dans le bloc « Ouragan Radios » de la page d’accueil.',
   },
   defaultSort: 'order',

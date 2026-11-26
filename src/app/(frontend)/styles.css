@@ -1074,3 +1074,13 @@ main {
     padding: 14px 12px;
   }
 }
+
+/* Bandeau de l'aperçu en direct (visible seulement par le rédacteur) */
+.preview-banner {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: #fff4d6;
+  color: #7a5200;
+  font-size: 0.9rem;
+}
