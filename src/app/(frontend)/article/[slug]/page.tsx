@@ -6,10 +6,18 @@ import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 import { ArticleCard } from '../../../../components/ArticleCard'
+import { PlayBadge } from '../../../../components/PlayBadge'
 import { Comments } from '../../../../components/Comments'
 import { LatestList } from '../../../../components/LatestList'
 import { ShareBar } from '../../../../components/ShareBar'
-import { asAuthor, asCategory, asMedia, formatDateTime, imageUrl } from '../../../../lib/format'
+import {
+  asAuthor,
+  asCategory,
+  asMedia,
+  formatDateTime,
+  imageUrl,
+  isVideoCategory,
+} from '../../../../lib/format'
 import { formatComments, formatViews } from '../../../../lib/format'
 import { getArticleBySlug, getArticlePreview, getArticles, getComments } from '../../../../lib/queries'
 import { LivePreviewRefresh } from '../../../../components/LivePreviewRefresh'
@@ -136,6 +144,7 @@ export default async function ArticlePage({ params }: Props) {
                 sizes="(min-width: 1024px) 760px, 100vw"
                 priority
               />
+              {isVideoCategory(category) && <PlayBadge size="lg" />}
             </div>
             {(cover?.alt || cover?.credit) && (
               <figcaption>

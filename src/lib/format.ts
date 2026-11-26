@@ -75,3 +75,15 @@ export function formatComments(n?: number | null): string {
   const v = n || 0
   return `${v.toLocaleString('fr-FR')} ${v > 1 ? 'Commentaires' : 'Commentaire'}`
 }
+
+/** Article de la rubrique Vidéos (repérée par son nom ou son adresse, accents ignorés). */
+export function isVideoCategory(c: Category | null | undefined): boolean {
+  if (!c) return false
+  const norm = (v?: string | null) =>
+    (v || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+  return norm(c.slug) === 'videos' || norm(c.name) === 'videos'
+}
