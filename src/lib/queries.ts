@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 
-import type { Article, Category, Radio } from '../payload-types'
+import type { Article, Category, Comment, Radio } from '../payload-types'
 import { publicArticlesWhere } from './publicWhere'
 
 export const getClient = cache(async () => getPayload({ config: configPromise }))
@@ -134,5 +134,21 @@ export const getRadios = cache(async (): Promise<Radio[]> =>
       depth: 1,
     })
     return res.docs
+  }, []),
+)
+
+/** Commentaires validés d'un article, du plus ancien au plus récent. */
+export const getComments = cache(async (articleId: number): Promise<Comment[]> =>
+  buildSafe(async () => {
+    const payload = await getClient()
+    const res = await payload.find({
+      collection: 'comments',
+      where: { and: [{ article: { equals: articleId } }, { status: { equals: 'approved' } }] },
+      sort: 'createdAt',
+      limit: 200,
+      depth: 0,
+      select: { name: true, content: true, createdAt: true },
+    })
+    return res.docs as Comment[]
   }, []),
 )

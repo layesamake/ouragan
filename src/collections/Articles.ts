@@ -14,6 +14,17 @@ export const Articles: CollectionConfig = {
   hooks: {
     afterChange: [revalidateAfterChange],
     afterDelete: [revalidateAfterDelete],
+    // Supprimer un article supprime aussi ses commentaires.
+    beforeDelete: [
+      async ({ id, req }) => {
+        await req.payload.delete({
+          collection: 'comments',
+          where: { article: { equals: id } },
+          overrideAccess: true,
+          req,
+        })
+      },
+    ],
   },
   admin: {
     useAsTitle: 'title',
@@ -177,6 +188,15 @@ export const Articles: CollectionConfig = {
       // Incrémenté automatiquement à chaque visite de l'article ; non modifiable dans l'admin.
       // Le compteur est affiché dans le bloc « Partager » (valeur réelle de l'article en ligne,
       // le formulaire montrant sinon celle du dernier brouillon enregistré).
+      access: { create: () => false, update: () => false },
+      admin: { position: 'sidebar', readOnly: true, hidden: true },
+    },
+    {
+      name: 'commentsCount',
+      label: 'Commentaires',
+      type: 'number',
+      defaultValue: 0,
+      // Nombre de commentaires validés, tenu à jour par la collection Commentaires.
       access: { create: () => false, update: () => false },
       admin: { position: 'sidebar', readOnly: true, hidden: true },
     },

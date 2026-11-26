@@ -6,6 +6,7 @@ export const ADMIN = '/admin'
 export const editArticleURL = (id: number | string) => `${ADMIN}/collections/articles/${id}`
 export const NEW_ARTICLE_URL = `${ADMIN}/collections/articles/create`
 export const NEW_MEDIA_URL = `${ADMIN}/collections/media/create`
+export const PENDING_COMMENTS_URL = `${ADMIN}/collections/comments?where[status][equals]=pending`
 
 const DAY = 24 * 60 * 60 * 1000
 
@@ -41,8 +42,16 @@ export async function getDashboardData(payload: Payload) {
   const weekAgo = new Date(today.getTime() - 6 * DAY)
   const now = new Date().toISOString()
 
-  const [publishedToday, publishedWeek, drafts, allViews, mostRead, recentDrafts, latest] =
-    await Promise.all([
+  const [
+    publishedToday,
+    publishedWeek,
+    drafts,
+    allViews,
+    mostRead,
+    recentDrafts,
+    latest,
+    pendingComments,
+  ] = await Promise.all([
       payload.count({
         collection: 'articles',
         where: {
@@ -103,6 +112,7 @@ export async function getDashboardData(payload: Payload) {
           breaking: true,
         },
       }),
+      payload.count({ collection: 'comments', where: { status: { equals: 'pending' } } }),
     ])
 
   const totalViews = allViews.docs.reduce((sum, a) => sum + (a.views || 0), 0)
@@ -116,6 +126,7 @@ export async function getDashboardData(payload: Payload) {
     mostRead: mostRead.docs,
     recentDrafts: recentDrafts.docs,
     latest: latest.docs,
+    pendingComments: pendingComments.totalDocs,
   }
 }
 

@@ -69,3 +69,9 @@ export function formatViews(n?: number | null): string {
   const v = n || 0
   return `${v.toLocaleString('fr-FR')} ${v > 1 ? 'Lectures' : 'Lecture'}`
 }
+
+/** « 1 Commentaire », « 23 Commentaires » */
+export function formatComments(n?: number | null): string {
+  const v = n || 0
+  return `${v.toLocaleString('fr-FR')} ${v > 1 ? 'Commentaires' : 'Commentaire'}`
+}

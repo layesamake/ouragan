@@ -6,11 +6,12 @@ import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 import { ArticleCard } from '../../../../components/ArticleCard'
+import { Comments } from '../../../../components/Comments'
 import { LatestList } from '../../../../components/LatestList'
 import { ShareBar } from '../../../../components/ShareBar'
 import { asAuthor, asCategory, asMedia, formatDateTime, imageUrl } from '../../../../lib/format'
-import { formatViews } from '../../../../lib/format'
-import { getArticleBySlug, getArticlePreview, getArticles } from '../../../../lib/queries'
+import { formatComments, formatViews } from '../../../../lib/format'
+import { getArticleBySlug, getArticlePreview, getArticles, getComments } from '../../../../lib/queries'
 import { LivePreviewRefresh } from '../../../../components/LivePreviewRefresh'
 import { ViewBeacon } from '../../../../components/ViewBeacon'
 
@@ -57,11 +58,12 @@ export default async function ArticlePage({ params }: Props) {
   const cover = asMedia(article.cover)
   const coverSrc = imageUrl(cover, 'hero')
 
-  const [related, latest] = await Promise.all([
+  const [related, latest, comments] = await Promise.all([
     category
       ? getArticles({ categoryId: category.id, limit: 4, excludeIds: [article.id] })
       : Promise.resolve(null),
     getArticles({ limit: 10, excludeIds: [article.id] }),
+    getComments(article.id),
   ])
 
   const siteUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://ouragan.sn'
@@ -117,6 +119,8 @@ export default async function ArticlePage({ params }: Props) {
             </time>
             {' · '}
             {formatViews(article.views)}
+            {' · '}
+            <a href="#commentaires">{formatComments(comments.length)}</a>
             {!preview && <ViewBeacon id={article.id} />}
           </p>
           <ShareBar url={`${siteUrl}/article/${article.slug}`} title={article.title} />
@@ -143,6 +147,8 @@ export default async function ArticlePage({ params }: Props) {
         )}
 
         {article.content && <RichText data={article.content} className="prose" />}
+
+        <Comments articleId={article.id} comments={comments} />
 
         {related && related.docs.length > 0 && (
           <section className="related">

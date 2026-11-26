@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     articles: Article;
+    comments: Comment;
     media: Media;
     categories: Category;
     authors: Author;
@@ -81,6 +82,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
+    comments: CommentsSelect<false> | CommentsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
@@ -173,6 +175,7 @@ export interface Article {
    */
   publishedAt?: string | null;
   views?: number | null;
+  commentsCount?: number | null;
   author?: (number | null) | Author;
   /**
    * Généré automatiquement si laissé vide.
@@ -195,7 +198,6 @@ export interface Media {
    */
   alt: string;
   credit?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -273,6 +275,22 @@ export interface Author {
   role?: string | null;
   photo?: (number | null) | Media;
   bio?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Les commentaires des lecteurs n’apparaissent sur le site qu’une fois « Validé ». Pour en valider plusieurs : cochez-les, puis « Modifier » → Statut.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments".
+ */
+export interface Comment {
+  id: number;
+  content: string;
+  name: string;
+  status: 'pending' | 'approved' | 'rejected';
+  article?: (number | null) | Article;
+  ipHash?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -355,6 +373,10 @@ export interface PayloadLockedDocument {
         value: number | Article;
       } | null)
     | ({
+        relationTo: 'comments';
+        value: number | Comment;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -431,6 +453,7 @@ export interface ArticlesSelect<T extends boolean = true> {
   breaking?: T;
   publishedAt?: T;
   views?: T;
+  commentsCount?: T;
   author?: T;
   slug?: T;
   updatedAt?: T;
@@ -439,12 +462,24 @@ export interface ArticlesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments_select".
+ */
+export interface CommentsSelect<T extends boolean = true> {
+  content?: T;
+  name?: T;
+  status?: T;
+  article?: T;
+  ipHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   credit?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
