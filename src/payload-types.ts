@@ -192,6 +192,11 @@ export interface Article {
    * Généré automatiquement si laissé vide.
    */
   slug?: string | null;
+  sourceName?: string | null;
+  /**
+   * Article d’origine. Sert aussi à éviter les doublons.
+   */
+  sourceUrl?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -518,6 +523,8 @@ export interface ArticlesSelect<T extends boolean = true> {
   commentsCount?: T;
   author?: T;
   slug?: T;
+  sourceName?: T;
+  sourceUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

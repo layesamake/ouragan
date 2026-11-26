@@ -16,6 +16,8 @@
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0",
+    "@extractus/article-extractor": "^9.0.1",
     "@payloadcms/db-postgres": "3.94.2",
     "@payloadcms/db-sqlite": "3.94.2",
     "@payloadcms/live-preview-react": "3.94.2",
@@ -24,6 +26,7 @@
     "@payloadcms/storage-s3": "3.94.2",
     "@payloadcms/translations": "3.94.2",
     "@payloadcms/ui": "3.94.2",
+    "cheerio": "^1.2.0",
     "cross-env": "^7.0.3",
     "dotenv": "16.4.7",
     "graphql": "^16.8.1",
@@ -31,6 +34,7 @@
     "payload": "3.94.2",
     "react": "19.2.9",
     "react-dom": "19.2.9",
+    "rss-parser": "^3.13.0",
     "sharp": "0.35.4"
   },
   "devDependencies": {

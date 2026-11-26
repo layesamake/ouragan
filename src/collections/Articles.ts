@@ -229,5 +229,28 @@ export const Articles: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     slugField('title'),
+    // ——— Provenance (articles préparés automatiquement par la rédaction IA) ———
+    {
+      name: 'sourceName',
+      label: 'Média source',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        condition: (data) => Boolean(data?.sourceName),
+      },
+    },
+    {
+      name: 'sourceUrl',
+      label: 'Lien source',
+      type: 'text',
+      index: true,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        condition: (data) => Boolean(data?.sourceUrl),
+        description: 'Article d’origine. Sert aussi à éviter les doublons.',
+      },
+    },
   ],
 }

@@ -1,0 +1,40 @@
+# Rédaction IA quotidienne : chaque jour à 10 h 00 GMT (heure de Dakar),
+# GitHub appelle la route qui prépare les brouillons d'articles.
+# Secret requis : CRON_SECRET (Settings → Secrets and variables → Actions).
+# Variable facultative : SITE_URL (par défaut https://ouragan.sn).
+name: Rédaction IA quotidienne
+
+on:
+  schedule:
+    - cron: '0 10 * * *'
+  workflow_dispatch: # bouton « Run workflow » pour lancer à la main
+
+concurrency:
+  group: daily-news
+  cancel-in-progress: false
+
+jobs:
+  generate-news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Préparer les brouillons
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://ouragan.sn' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::Le secret CRON_SECRET n'est pas défini dans GitHub."
+            exit 1
+          fi
+          status=$(curl -sS -o response.json -w '%{http_code}' --max-time 120 \
+            -X GET "${SITE_URL}/api/cron/generate-news" \
+            -H "Authorization: Bearer ${CRON_SECRET}")
+          echo "Code HTTP : $status"
+          cat response.json | head -c 20000; echo
+          if [ "$status" != "200" ]; then
+            echo "::error::La rédaction IA a répondu $status."
+            exit 1
+          fi
+          echo "### Rédaction IA" >> "$GITHUB_STEP_SUMMARY"
+          jq -r '.summary | to_entries[] | "- \(.key) : \(.value)"' response.json >> "$GITHUB_STEP_SUMMARY" || true
