@@ -1,0 +1,5 @@
+# Réglages pnpm (pnpm 11 ne lit plus le champ "pnpm" de package.json).
+allowBuilds:
+  sharp: true
+  esbuild: true
+  unrs-resolver: true
