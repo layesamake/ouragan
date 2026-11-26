@@ -3,7 +3,7 @@ import { timingSafeEqual } from 'node:crypto'
 import type { Payload } from 'payload'
 
 import { ensureDefaultCategories } from '@/lib/defaultCategories'
-import { blocksToLexical } from '@/lib/lexicalFormatter'
+import { addVideos, blocksToLexical } from '@/lib/lexicalFormatter'
 import { findCoverImage } from '@/lib/newsImages'
 import {
   collectSource,
@@ -33,6 +33,8 @@ const TIME_BUDGET_MS = 75_000
 const CONCURRENCY = 3
 /** Articles regardés au plus dans chaque flux. */
 const MAX_LOOKED_AT_PER_SOURCE = 10
+/** Fenêtre (en jours) des brouillons récents : anti-doublon par sujet et rattrapage des photos. */
+const RECENT_DAYS = 3
 
 type Detail = {
   source: string
@@ -191,6 +193,7 @@ export async function GET(req: Request): Promise<Response> {
       title: item.title,
       text,
       categories,
+      recentTitles,
     })
     if (result.skip) {
       summary.skippedFiltered++
@@ -243,6 +246,7 @@ export async function GET(req: Request): Promise<Response> {
       })
       if (cover) summary.withCover++
       if (videos.length) summary.withVideo++
+      recentTitles.push(result.title)
       details.push({
         ...base,
         title: result.title,
@@ -289,12 +293,107 @@ export async function GET(req: Request): Promise<Response> {
     }
   }
 
+  // Titres des brouillons IA récents, pour ne pas traiter deux fois le même événement.
+  const recent = await payload.find({
+    collection: 'articles',
+    draft: true,
+    overrideAccess: true,
+    where: {
+      and: [
+        { sourceUrl: { exists: true } },
+        {
+          createdAt: {
+            greater_than: new Date(Date.now() - RECENT_DAYS * 86_400_000).toISOString(),
+          },
+        },
+      ],
+    },
+    sort: '-createdAt',
+    limit: 60,
+    depth: 0,
+    pagination: false,
+    select: { title: true },
+  })
+  const recentTitles = recent.docs.map((d) => d.title)
+
   const pending = [...queues]
   await Promise.all(
     Array.from({ length: Math.min(CONCURRENCY, pending.length) }, async () => {
       for (let q = pending.shift(); q; q = pending.shift()) await processQueue(q)
     }),
   )
+
+  // 3. Rattrapage : brouillons IA récents restés sans photo (ou sans vidéo) — ex. créés
+  //    avant l'ajout des photos. On reprend la photo et les vidéos de l'article d'origine.
+  const backfilled: {
+    id: number
+    title: string
+    cover?: string
+    videos?: string[]
+    error?: string
+  }[] = []
+  if (timeLeft() > 0) {
+    const missing = await payload.find({
+      collection: 'articles',
+      draft: true,
+      overrideAccess: true,
+      where: {
+        and: [
+          { sourceUrl: { exists: true } },
+          { cover: { exists: false } },
+          { _status: { equals: 'draft' } },
+          {
+            createdAt: {
+              greater_than: new Date(Date.now() - RECENT_DAYS * 86_400_000).toISOString(),
+            },
+          },
+        ],
+      },
+      limit: MAX_CREATED_PER_RUN,
+      depth: 0,
+      pagination: false,
+    })
+    for (const doc of missing.docs) {
+      if (timeLeft() <= 0) break
+      const source = NEWS_SOURCES.find((s) => s.name === doc.sourceName)
+      if (!source || !doc.sourceUrl) continue
+      try {
+        const { imageUrl, videos } = await extractArticleText({
+          source,
+          url: doc.sourceUrl,
+          title: doc.title,
+          categories: [],
+        })
+        const found = await findCoverImage(payload, {
+          source: { name: source.name, homepage: source.homepage, imageUrl },
+          subject: null,
+          queries: [],
+          alt: doc.title,
+          used: usedPhotos,
+        })
+        const content = doc.content ? addVideos(doc.content, videos) : null
+        if (found || content) {
+          await payload.update({
+            collection: 'articles',
+            id: doc.id,
+            draft: true,
+            overrideAccess: true,
+            data: { ...(found ? { cover: found.id } : {}), ...(content ? { content } : {}) },
+          })
+        }
+        if (found) summary.withCover++
+        if (content) summary.withVideo++
+        backfilled.push({
+          id: doc.id,
+          title: doc.title,
+          cover: found?.credit ?? 'aucune photo d’origine',
+          ...(content ? { videos } : {}),
+        })
+      } catch (err) {
+        backfilled.push({ id: doc.id, title: doc.title, error: message(err) })
+      }
+    }
+  }
 
   payload.logger.info(
     `Rédaction IA : ${summary.created} brouillon(s) créé(s) en ${Math.round((Date.now() - startedAt) / 1000)} s`,
@@ -305,5 +404,6 @@ export async function GET(req: Request): Promise<Response> {
     summary,
     sources,
     details,
+    backfilled,
   })
 }

@@ -65,7 +65,7 @@ Chaque jour à **10 h 00 GMT**, GitHub Actions (`.github/workflows/daily-news-cr
 - **GitHub** (*Settings → Secrets and variables → Actions*) : secret `CRON_SECRET`, même valeur que sur Hostinger. Variable facultative `SITE_URL` (par défaut `https://ouragan.sn`).
 - Lancer à la main : onglet *Actions* → *Rédaction IA quotidienne* → *Run workflow*, ou :
   `curl -H "Authorization: Bearer $CRON_SECRET" https://ouragan.sn/api/cron/generate-news`
-- Au plus 3 articles par média et 12 par passage. Le rapport JSON détaille chaque article (créé, doublon, filtré, trop court, erreur).
+- Au plus 3 articles par média et 12 par passage. Un même événement couvert par plusieurs médias ne donne qu'un seul brouillon (l'IA compare avec les brouillons des 3 derniers jours). Les brouillons récents restés sans photo la reçoivent au passage suivant. Le rapport JSON détaille chaque article (créé, doublon, filtré, trop court, erreur).
 
 ## Modifier le schéma (ajouter un champ…)
 

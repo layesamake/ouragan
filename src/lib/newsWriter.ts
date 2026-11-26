@@ -86,6 +86,8 @@ export async function rewriteArticle(args: {
   title: string
   text: string
   categories: CategoryChoice[]
+  /** Titres des articles déjà préparés ces derniers jours (évite deux articles sur le même événement). */
+  recentTitles?: string[]
 }): Promise<RewriteResult> {
   const sourceText = args.text.slice(0, MAX_SOURCE_CHARS)
   const rubriques = args.categories.map((c) => `- id ${c.id} : ${c.name}`).join('\n')
@@ -103,7 +105,14 @@ Formule d'attribution : « ${args.source.attribution}… »
 Rubriques disponibles :
 ${rubriques}
 
-<article_source titre="${args.title.replace(/"/g, "'")}">
+${
+  args.recentTitles?.length
+    ? `Articles déjà préparés ces derniers jours (rejette l'article s'il traite du MÊME événement, même vu par un autre média) :
+${args.recentTitles.map((t) => `- ${t}`).join('\n')}
+
+`
+    : ''
+}<article_source titre="${args.title.replace(/"/g, "'")}">
 ${sourceText}
 </article_source>`,
       },
