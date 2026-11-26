@@ -30,6 +30,7 @@ export async function Header() {
               alt="Ouragan.sn — L'info en live"
               width={480}
               height={208}
+              sizes="(min-width: 640px) 166px, 120px"
               priority
             />
           </Link>

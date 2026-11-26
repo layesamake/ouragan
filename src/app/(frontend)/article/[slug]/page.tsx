@@ -148,6 +148,7 @@ export default async function ArticlePage({ params }: Props) {
                 fill
                 sizes="(min-width: 1024px) 760px, 100vw"
                 priority
+                fetchPriority="high"
               />
               {isVideoCategory(category) && <PlayBadge size="lg" />}
             </div>

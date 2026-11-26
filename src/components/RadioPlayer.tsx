@@ -74,10 +74,37 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // Écran verrouillé / centre de contrôle du téléphone : nom de la radio et bouton pause.
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return
+    const session = navigator.mediaSession
+    const handle = (action: MediaSessionAction, fn: (() => void) | null) => {
+      try {
+        session.setActionHandler(action, fn)
+      } catch {
+        // action non prise en charge par ce navigateur
+      }
+    }
+    if (!current) {
+      session.metadata = null
+      handle('pause', null)
+      handle('stop', null)
+      return
+    }
+    session.metadata = new MediaMetadata({
+      title: current.name,
+      artist: 'Ouragan Radios · En direct',
+      artwork: current.logo ? [{ src: current.logo }] : [{ src: '/icon.png', sizes: '192x192' }],
+    })
+    handle('pause', stop)
+    handle('stop', stop)
+  }, [current, stop])
+
   return (
     <RadioContext.Provider value={{ current, state, toggle, stop }}>
       {children}
       <audio ref={audioRef} preload="none" />
+      {current && <div className="radiobar-spacer" aria-hidden="true" />}
       {current && (
         <div className="radiobar" role="region" aria-label="Lecteur radio">
           <span className={`radiobar__dot radiobar__dot--${state}`} aria-hidden="true" />
