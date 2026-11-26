@@ -26,6 +26,13 @@ const nextConfig: NextConfig = {
 
     return webpackConfig
   },
+  // Build plus léger pour l'hébergement mutualisé (CPU/mémoire limités)
+  experimental: {
+    cpus: 1,
+    workerThreads: false,
+    webpackMemoryOptimizations: true,
+  },
+  productionBrowserSourceMaps: false,
   turbopack: {
     root: path.resolve(dirname),
   },
