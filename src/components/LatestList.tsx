@@ -3,6 +3,9 @@ import Link from 'next/link'
 import type { Article } from '../payload-types'
 import { asCategory, formatTime } from '../lib/format'
 
+/** Nombre d'articles affichés dans le bloc « Dernières infos ». */
+const MAX_ITEMS = 5
+
 export function LatestList({
   articles,
   title = 'Dernières infos',
@@ -10,14 +13,15 @@ export function LatestList({
   articles: Article[]
   title?: string
 }) {
+  const items = articles.slice(0, MAX_ITEMS)
   return (
     <section className="widget">
       <h2 className="widget__title">{title}</h2>
-      {articles.length === 0 ? (
+      {items.length === 0 ? (
         <p className="empty">Aucun article pour le moment.</p>
       ) : (
         <ol className="latest">
-          {articles.map((a) => {
+          {items.map((a) => {
             const cat = asCategory(a.category)
             return (
               <li key={a.id}>
