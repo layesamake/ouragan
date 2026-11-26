@@ -9,7 +9,10 @@ export type NewsSource = {
   /** Formule d'attribution proposée à l'IA. */
   attribution: string
   homepage: string
-  rss: string
+  /** Flux RSS ; null si le média n'en publie pas (lecture de la page d'accueil). */
+  rss: string | null
+  /** Délai d'attente propre au média (site lent), en millisecondes. */
+  timeoutMs?: number
   /** Liens d'articles reconnus sur la page d'accueil (secours si le flux RSS est indisponible). */
   articleLinkPattern: RegExp
   /** Sélecteurs CSS du corps de l'article (secours de l'extraction). */
@@ -40,6 +43,7 @@ export const NEWS_SOURCES: NewsSource[] = [
     attribution: 'Selon les informations rapportées par l’APS',
     homepage: 'https://aps.sn/',
     rss: 'https://aps.sn/feed/',
+    timeoutMs: 25_000, // site lent : délai dépassé à 10 s lors du premier passage
     articleLinkPattern: WP_ARTICLE,
     contentSelectors: WP_SELECTORS,
   },
@@ -47,7 +51,7 @@ export const NEWS_SOURCES: NewsSource[] = [
     name: 'Seneweb',
     attribution: 'Comme le rapporte Seneweb',
     homepage: 'https://www.seneweb.com/',
-    rss: 'https://www.seneweb.com/news/rss.xml',
+    rss: null, // l'ancienne adresse /news/rss.xml répond 404
     articleLinkPattern: /\/news\/[^/]+\/[^/]+_n_\d+\.html$/i,
     contentSelectors: ['.article-content', '.content-article', '#article-content', 'article'],
   },

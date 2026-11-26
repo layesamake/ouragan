@@ -19,11 +19,11 @@ export const RSS_CONTENT_MIN_CHARS = 400
 /** En dessous, l'article est trop court pour être réécrit. */
 export const MIN_TEXT_CHARS = 350
 
-async function fetchText(url: string): Promise<string> {
+async function fetchText(url: string, timeoutMs = HTTP_TIMEOUT_MS): Promise<string> {
   const res = await fetch(url, {
     headers: HTTP_HEADERS,
     redirect: 'follow',
-    signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
+    signal: AbortSignal.timeout(timeoutMs),
     cache: 'no-store',
   })
   if (!res.ok) throw new Error(`HTTP ${res.status} sur ${url}`)
@@ -38,9 +38,25 @@ const parser: Parser<object, FeedItem> = new Parser({
   customFields: { item: ['content:encoded'] },
 })
 
+const XML_ENTITIES = new Set(['amp', 'lt', 'gt', 'quot', 'apos'])
+
+/**
+ * Certains flux (ex. Walf NET) contiennent des « & » non échappés ou des entités
+ * HTML (&nbsp;, &rsquo;…) que le lecteur XML refuse : on les rend valides.
+ */
+export const repairXml = (xml: string): string =>
+  xml
+    .replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (entity, name: string) => {
+      if (XML_ENTITIES.has(name)) return entity
+      const decoded = cheerio.load(entity).text()
+      return decoded && decoded !== entity ? `&#${decoded.codePointAt(0)};` : `&amp;${name};`
+    })
+    .replace(/&(?!(?:[a-zA-Z][a-zA-Z0-9]*|#\d+|#x[0-9a-fA-F]+);)/g, '&amp;')
+
 async function fromRss(source: NewsSource): Promise<SourceItem[]> {
-  const xml = await fetchText(source.rss)
-  const feed = await parser.parseString(xml)
+  if (!source.rss) throw new Error('pas de flux RSS')
+  const xml = await fetchText(source.rss, source.timeoutMs)
+  const feed = await parser.parseString(repairXml(xml))
   const items: SourceItem[] = []
   for (const it of feed.items) {
     const url = it.link && normalizeUrl(it.link, source.homepage)
@@ -58,7 +74,7 @@ async function fromRss(source: NewsSource): Promise<SourceItem[]> {
 
 /** Secours : liens d'articles de la page d'accueil. */
 async function fromHomepage(source: NewsSource): Promise<SourceItem[]> {
-  const $ = cheerio.load(await fetchText(source.homepage))
+  const $ = cheerio.load(await fetchText(source.homepage, source.timeoutMs))
   const seen = new Set<string>()
   const items: SourceItem[] = []
   $('a[href]').each((_, a) => {
@@ -125,7 +141,7 @@ export async function extractArticleText(
     const text = htmlToText(item.contentHtml)
     if (text.length > RSS_CONTENT_MIN_CHARS) return { text, via: 'rss' }
   }
-  const html = await fetchText(item.url)
+  const html = await fetchText(item.url, item.source.timeoutMs)
   let text = ''
   try {
     const article = await extractFromHtml(html, item.url)
