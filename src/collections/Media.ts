@@ -45,6 +45,10 @@ export const Media: CollectionConfig = {
     defaultColumns: ['filename', 'alt', 'credit', 'createdAt'],
     listSearchableFields: ['alt', 'filename', 'credit'],
     description: 'Toutes vos photos. Utilisez la recherche pour en retrouver une.',
+    // « Coller l'URL » : récupère l'image même si on sauvegarde sans cliquer « Ajouter un fichier ».
+    components: {
+      edit: { SaveButton: '/components/admin/MediaSaveButton#MediaSaveButton' },
+    },
   },
   access: {
     read: () => true,
