@@ -72,6 +72,7 @@ export default buildConfig({
         Icon: '/components/admin/Graphics#Icon',
       },
       afterNavLinks: ['/components/admin/StatsNavLink#StatsNavLink'],
+      actions: ['/components/admin/HeaderActions#HeaderActions'],
       views: {
         dashboard: { Component: '/components/admin/Dashboard#Dashboard' },
         statistiques: {

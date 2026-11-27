@@ -27,6 +27,7 @@ import { ShareButtons as ShareButtons_d6bb43374fbbf4d1137bf03b3e7052d1 } from '.
 import { LiveComposer as LiveComposer_3a4b09b4aecc89000fdbdda9b983dda3 } from '../../../components/admin/LiveComposer'
 import { Icon as Icon_80ebcb12978a9db9a1c04af0af89c7ec } from '../../../components/admin/Graphics'
 import { Logo as Logo_80ebcb12978a9db9a1c04af0af89c7ec } from '../../../components/admin/Graphics'
+import { HeaderActions as HeaderActions_c9fcc4e841a7b22678cf4272fdcd73be } from '../../../components/admin/HeaderActions'
 import { StatsNavLink as StatsNavLink_3c443f0c28ffcebbd081f1f092e5f5c9 } from '../../../components/admin/StatsNavLink'
 import { Dashboard as Dashboard_16b88e9b8c48e393fa86591406efd08f } from '../../../components/admin/Dashboard'
 import { Statistics as Statistics_1f9b7861cef4729bc3547a9394ffa53b } from '../../../components/admin/Statistics'
@@ -64,6 +65,7 @@ export const importMap = {
   "/components/admin/LiveComposer#LiveComposer": LiveComposer_3a4b09b4aecc89000fdbdda9b983dda3,
   "/components/admin/Graphics#Icon": Icon_80ebcb12978a9db9a1c04af0af89c7ec,
   "/components/admin/Graphics#Logo": Logo_80ebcb12978a9db9a1c04af0af89c7ec,
+  "/components/admin/HeaderActions#HeaderActions": HeaderActions_c9fcc4e841a7b22678cf4272fdcd73be,
   "/components/admin/StatsNavLink#StatsNavLink": StatsNavLink_3c443f0c28ffcebbd081f1f092e5f5c9,
   "/components/admin/Dashboard#Dashboard": Dashboard_16b88e9b8c48e393fa86591406efd08f,
   "/components/admin/Statistics#Statistics": Statistics_1f9b7861cef4729bc3547a9394ffa53b,

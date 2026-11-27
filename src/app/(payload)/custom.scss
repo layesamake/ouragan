@@ -690,3 +690,74 @@ textarea#field-excerpt {
   border-left: 4px solid var(--ouragan-red);
   background: var(--ouragan-soft);
 }
+
+/* ---------- Raccourcis de la barre du haut ---------- */
+.ouragan-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ouragan-header-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--theme-elevation-150);
+  background: var(--theme-elevation-50);
+  color: var(--theme-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--theme-elevation-100);
+    border-color: var(--theme-elevation-250);
+    color: var(--theme-text);
+  }
+}
+
+.ouragan-header-action--primary {
+  background: var(--ouragan-red);
+  border-color: var(--ouragan-red);
+  color: #fff;
+
+  &:hover,
+  &:focus-visible {
+    background: #c3121d;
+    border-color: #c3121d;
+    color: #fff;
+  }
+}
+
+/* Téléphone : boutons ronds, icônes seules */
+@media (max-width: 640px) {
+  .ouragan-header-actions {
+    gap: 6px;
+  }
+
+  .ouragan-header-action {
+    width: 34px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .ouragan-header-action__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
