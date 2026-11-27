@@ -3,7 +3,6 @@ import Link from 'next/link'
 
 import { getActiveLives, getCategories } from '../lib/queries'
 import { todayLabel } from '../lib/format'
-import { MainNav } from './MainNav'
 import { SocialLinks } from './SocialLinks'
 
 export async function Header() {
@@ -37,21 +36,28 @@ export async function Header() {
           </Link>
         </div>
       </div>
-      <MainNav
-        items={[
-          { href: '/', label: 'Accueil' },
-          ...(lives.length > 0
-            ? [
-                {
-                  href: lives.length === 1 ? `/direct/${lives[0].slug}` : '/direct',
-                  label: 'Direct',
-                  live: true,
-                },
-              ]
-            : []),
-          ...categories.map((c) => ({ href: `/rubrique/${c.slug}`, label: c.name })),
-        ]}
-      />
+      <nav className="rubriques" aria-label="Rubriques">
+        <ul className="container rubriques__list">
+          <li>
+            <Link href="/">Accueil</Link>
+          </li>
+          {lives.length > 0 && (
+            <li>
+              <Link
+                href={lives.length === 1 ? `/direct/${lives[0].slug}` : '/direct'}
+                className="rubriques__live"
+              >
+                <span className="dot dot--white" aria-hidden="true" /> Direct
+              </Link>
+            </li>
+          )}
+          {categories.map((c) => (
+            <li key={c.id}>
+              <Link href={`/rubrique/${c.slug}`}>{c.name}</Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </header>
   )
 }
