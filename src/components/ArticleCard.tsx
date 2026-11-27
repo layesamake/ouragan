@@ -24,6 +24,11 @@ type Props = {
   priority?: boolean
 }
 
+/** Compare deux libellés sans tenir compte de la casse ni des accents. */
+const norm = (s: string) =>
+  s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase()
+const sameLabel = (a: string, b: string) => norm(a) === norm(b)
+
 const SIZES: Record<Variant, string> = {
   hero: '(min-width: 1024px) 760px, 100vw',
   card: '(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw',
@@ -44,6 +49,12 @@ export function ArticleCard({
     media,
     variant === 'hero' ? 'hero' : variant === 'card' ? 'card' : 'thumbnail',
   )
+  // Sans nom de rubrique (blocs par rubrique, pages de rubrique), le surtitre
+  // qui ne fait que répéter ce nom disparaît aussi.
+  const kicker =
+    article.kicker && !(!showCategory && category && sameLabel(article.kicker, category.name))
+      ? article.kicker
+      : null
   const href = `/article/${article.slug}`
   const Title = variant === 'hero' ? 'h2' : 'h3'
 
@@ -83,7 +94,7 @@ export function ArticleCard({
         {!(big && src) && tag}
         <Title className="card__title">
           <Link href={href}>
-            {article.kicker && <span className="kicker">{article.kicker} · </span>}
+            {kicker && <span className="kicker">{kicker} · </span>}
             {article.title}
           </Link>
         </Title>
