@@ -4,6 +4,7 @@ import { cache } from 'react'
 
 import type { Article, Category, Comment, Live, Radio } from '../payload-types'
 import { DEFAULT_SOCIAL_LINKS } from '../globals/SocialLinks'
+import { foldForSearch } from './lexicalText'
 import { publicArticlesWhere } from './publicWhere'
 
 export const getClient = cache(async () => getPayload({ config: configPromise }))
@@ -203,3 +204,38 @@ export const getSocialLinks = cache(
     })
   },
 )
+
+/** Nettoie la saisie de recherche : espaces, longueur, jokers SQL (% et _). */
+export const normalizeSearch = (raw?: string | string[]): string =>
+  (Array.isArray(raw) ? raw[0] : raw || '')
+    .replace(/[%_\\]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 100)
+
+/**
+ * Recherche dans les articles publiés : titre, chapô et texte de l'article.
+ * Insensible à la casse et aux accents ; avec plusieurs mots, chacun doit être présent.
+ */
+export const searchArticles = async (q: string, { limit = 12, page = 1 } = {}) => {
+  const payload = await getClient()
+  return payload.find({
+    collection: 'articles',
+    where: {
+      and: [
+        published(),
+        {
+          or: [
+            { title: { like: q } },
+            // Titre + chapô + texte, sans accents : « senegal » trouve « Sénégal »
+            { searchText: { like: foldForSearch(q) } },
+          ],
+        },
+      ],
+    } as never,
+    sort: '-publishedAt',
+    limit,
+    page,
+    depth: 1,
+  })
+}

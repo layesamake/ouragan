@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import { getActiveLives, getCategories } from '../lib/queries'
 import { todayLabel } from '../lib/format'
+import { HeaderSearch } from './HeaderSearch'
 import { SocialLinks } from './SocialLinks'
 
 export async function Header() {
@@ -13,7 +14,10 @@ export async function Header() {
     <header className="site-header">
       <div className="topbar">
         <div className="container topbar__inner">
-          <span className="topbar__date">{todayLabel()}</span>
+          <div className="topbar__left">
+            <span className="topbar__date">{todayLabel()}</span>
+            <HeaderSearch />
+          </div>
           <div className="topbar__right">
             <SocialLinks variant="topbar" />
             <span className="topbar__live">

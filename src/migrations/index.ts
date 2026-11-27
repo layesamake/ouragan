@@ -1,12 +1,13 @@
-import * as migration_20261126_092349_initial from './20261126_092349_initial'
-import * as migration_20261126_120313_storage_s3 from './20261126_120313_storage_s3'
-import * as migration_20261126_121417_article_views from './20261126_121417_article_views'
-import * as migration_20261126_124401_radios from './20261126_124401_radios'
-import * as migration_20261126_131535_comments from './20261126_131535_comments'
-import * as migration_20261126_131830_mode_live from './20261126_131830_mode_live'
-import * as migration_20261126_153638_media_alt_facultatif from './20261126_153638_media_alt_facultatif'
-import * as migration_20261126_154749_reseaux_sociaux from './20261126_154749_reseaux_sociaux'
-import * as migration_20261126_173647_sources_articles from './20261126_173647_sources_articles'
+import * as migration_20261126_092349_initial from './20261126_092349_initial';
+import * as migration_20261126_120313_storage_s3 from './20261126_120313_storage_s3';
+import * as migration_20261126_121417_article_views from './20261126_121417_article_views';
+import * as migration_20261126_124401_radios from './20261126_124401_radios';
+import * as migration_20261126_131535_comments from './20261126_131535_comments';
+import * as migration_20261126_131830_mode_live from './20261126_131830_mode_live';
+import * as migration_20261126_153638_media_alt_facultatif from './20261126_153638_media_alt_facultatif';
+import * as migration_20261126_154749_reseaux_sociaux from './20261126_154749_reseaux_sociaux';
+import * as migration_20261126_173647_sources_articles from './20261126_173647_sources_articles';
+import * as migration_20261127_082125_recherche_articles from './20261127_082125_recherche_articles';
 
 export const migrations = [
   {
@@ -54,4 +55,9 @@ export const migrations = [
     down: migration_20261126_173647_sources_articles.down,
     name: '20261126_173647_sources_articles',
   },
-]
+  {
+    up: migration_20261127_082125_recherche_articles.up,
+    down: migration_20261127_082125_recherche_articles.down,
+    name: '20261127_082125_recherche_articles'
+  },
+];

@@ -188,6 +188,7 @@ export interface Article {
   views?: number | null;
   commentsCount?: number | null;
   author?: (number | null) | Author;
+  searchText?: string | null;
   /**
    * Généré automatiquement si laissé vide.
    */
@@ -522,6 +523,7 @@ export interface ArticlesSelect<T extends boolean = true> {
   views?: T;
   commentsCount?: T;
   author?: T;
+  searchText?: T;
   slug?: T;
   sourceName?: T;
   sourceUrl?: T;

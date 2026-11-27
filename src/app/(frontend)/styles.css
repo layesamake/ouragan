@@ -117,6 +117,215 @@ h3 {
   text-transform: uppercase;
 }
 
+/* ---------- Recherche (après la date) ---------- */
+
+.topbar {
+  position: relative;
+}
+
+.topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.hsearch__toggle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #cfe9f5;
+  cursor: pointer;
+}
+
+/* Zone tactile élargie autour de la loupe */
+.hsearch__toggle::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.hsearch__toggle:hover,
+.hsearch__toggle[aria-expanded='true'] {
+  color: #fff;
+}
+
+.hsearch__toggle svg,
+.hsearch button svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Mobile : le champ se déplie sous la barre, sur toute la largeur */
+.hsearch {
+  display: none;
+  position: absolute;
+  z-index: 30;
+  top: 100%;
+  left: 0;
+  right: 0;
+  padding: 8px var(--gutter);
+  background: var(--brand-ink);
+  box-shadow: 0 6px 12px rgb(0 0 0 / 0.2);
+}
+
+.hsearch--open {
+  display: flex;
+}
+
+.hsearch input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px 0 0 6px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px; /* 16 px : évite le zoom automatique d'iOS */
+}
+
+.hsearch input:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 0;
+}
+
+.hsearch button {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  border: 0;
+  border-radius: 0 6px 6px 0;
+  background: var(--live);
+  color: #fff;
+  cursor: pointer;
+}
+
+.hsearch button:hover {
+  background: #c8121e;
+}
+
+@media (min-width: 768px) {
+  .topbar__left {
+    gap: 14px;
+  }
+  .hsearch__toggle {
+    display: none;
+  }
+  /* Ordinateur : champ compact toujours visible, dans la barre */
+  .hsearch {
+    display: flex;
+    position: static;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .hsearch input {
+    width: 220px;
+    flex: none;
+    height: 22px;
+    padding: 0 10px;
+    font-size: 12px;
+    border-radius: 11px 0 0 11px;
+    background: rgb(255 255 255 / 0.12);
+    color: #fff;
+    transition:
+      width 0.2s ease,
+      background 0.2s ease;
+  }
+  .hsearch input::placeholder {
+    color: #9fc4d6;
+  }
+  .hsearch input:focus {
+    width: 280px;
+    background: #fff;
+    color: var(--text);
+  }
+  .hsearch input:focus::placeholder {
+    color: var(--muted);
+  }
+  .hsearch button {
+    width: 30px;
+    height: 22px;
+    border-radius: 0 11px 11px 0;
+  }
+  .hsearch button svg {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+/* ---------- Page de résultats ---------- */
+
+.search-page__form {
+  display: flex;
+  gap: 8px;
+}
+
+.search-page__form input {
+  flex: 1 1 0; /* base 0 : la largeur native du champ n'élargit pas la page sur mobile */
+  width: 0;
+  min-width: 0;
+  height: 46px;
+  padding: 0 14px;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+}
+
+.search-page__form input:focus {
+  border-color: var(--brand);
+  outline: none;
+}
+
+.search-page__form .btn {
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--live);
+}
+
+.search-page__form .btn:hover {
+  background: #c8121e;
+}
+
+.search-page__count {
+  margin: 0;
+  color: var(--muted);
+}
+
+.search-page__count strong {
+  color: var(--text);
+}
+
+.search-page__results {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 0 12px;
+}
+
+.search-page__results .card__body {
+  flex: 1;
+  min-width: 0; /* les titres longs passent à la ligne au lieu d'élargir la page */
+  overflow-wrap: anywhere;
+}
+
+.search-page__results > :first-child {
+  border-top: 0;
+}
+
 .topbar__right {
   display: flex;
   align-items: center;
