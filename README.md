@@ -59,15 +59,15 @@ Pointer `ouragan.sn` et `www` vers l'adresse fournie par Hostinger pour le site,
 
 ### 4. Rédaction IA quotidienne (facultatif)
 
-Chaque jour à **10 h 00 GMT**, GitHub Actions (`.github/workflows/daily-news-cron.yml`) appelle `GET /api/cron/generate-news`. La route lit les derniers articles du Soleil, de l'APS, de Seneweb, de Walf NET, de SeneNews et de PressAfrik (`src/lib/newsSources.ts`), écarte les doublons, les faits divers et la presse people, puis les fait **réécrire par Claude** et les enregistre **en brouillon**, avec la **photo d'origine de l'article**, créditée « Photo : <média> » (choix de la rédaction). À défaut, une photo libre est prise sur Wikimedia Commons (personne ou lieu principal), puis sur Pexels, avec l'auteur et la licence crédités. Le rédacteur relit, change la photo s'il le souhaite et publie depuis `/admin`. Chaque article cite le média d'origine et se termine par un lien « Source ».
+Chaque jour à **10 h 00 GMT**, GitHub Actions (`.github/workflows/daily-news-cron.yml`) appelle `GET /api/cron/generate-news`. La route lit les derniers articles du Soleil, de l'APS, de Seneweb, de SeneNews et de PressAfrik (`src/lib/newsSources.ts`), écarte les doublons, les faits divers et la presse people, puis les fait **réécrire par Claude** et les enregistre **en brouillon**, avec la **photo d'origine de l'article**, créditée « Photo : <média> » (choix de la rédaction). À défaut, une photo libre est prise sur Wikimedia Commons (personne ou lieu principal), puis sur Pexels, avec l'auteur et la licence crédités. Le rédacteur relit, change la photo s'il le souhaite et publie depuis `/admin`. Chaque article cite le média d'origine et se termine par un lien « Source ».
 
 Trois appels successifs (`?group=senegal|afrique|international`, un par groupe de médias, car Cloudflare coupe chaque requête à 100 s) :
 
 | Groupe | Médias | Rubrique | Brouillons max |
 |---|---|---|---|
-| `senegal` | Le Soleil, APS, Seneweb, Walf NET, SeneNews, PressAfrik | choisie par l'IA | 12 (3 par média) |
-| `afrique` | Jeune Afrique, BBC Afrique, RFI, Africanews, France 24 | Afrique | 6 (2 par média) |
-| `international` | Le Monde, La Presse, BFMTV | International | 4 (2 par média) |
+| `senegal` | Le Soleil, APS, Seneweb, SeneNews, PressAfrik | choisie par l'IA | 12 (3 par média) |
+| `afrique` | Jeune Afrique, BBC Afrique, RFI | Afrique | 4 (2 par média) |
+| `international` | La Presse, BFMTV | International | 4 (2 par média) |
 
 Économie de crédits : consigne mise en cache, réflexion désactivée, texte source limité à 4 000 caractères, seuls les titres récents proches du sujet sont envoyés, et les doublons évidents sont écartés sans appel à l'IA. Le rapport JSON donne `aiCalls`, les jetons consommés (`usage`) et `estimatedCostUsd`.
 
