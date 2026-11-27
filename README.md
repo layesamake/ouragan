@@ -66,8 +66,8 @@ Trois appels successifs (`?group=senegal|afrique|international`, un par groupe d
 | Groupe | Médias | Rubrique | Brouillons max |
 |---|---|---|---|
 | `senegal` | Le Soleil, APS, Seneweb, SeneNews, PressAfrik | choisie par l'IA | 12 (3 par média) |
-| `afrique` | Jeune Afrique, BBC Afrique, RFI | Afrique | 4 (2 par média) |
-| `international` | La Presse, BFMTV | International | 4 (2 par média) |
+| `afrique` | Jeune Afrique, BBC Afrique, RFI, Sputnik Afrique | Afrique | 6 (2 par média) |
+| `international` | La Presse, BFMTV, TASS, IRNA | International | 6 (2 par média) |
 
 Économie de crédits : consigne mise en cache, réflexion désactivée, texte source limité à 4 000 caractères, seuls les titres récents proches du sujet sont envoyés, et les doublons évidents sont écartés sans appel à l'IA. Le rapport JSON donne `aiCalls`, les jetons consommés (`usage`) et `estimatedCostUsd`.
 
