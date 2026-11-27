@@ -119,6 +119,14 @@ const AFRIQUE_SOURCES: NewsSource[] = [
     articleLinkPattern: /\/fr\/[a-z-]+\/\d{8}-[a-z0-9-]{15,}$/i,
     contentSelectors: NEWS_SELECTORS,
   },
+  {
+    name: 'Sputnik Afrique',
+    attribution: 'Selon l’agence Sputnik Afrique',
+    homepage: 'https://fr.sputniknews.africa/',
+    rss: 'https://fr.sputniknews.africa/export/rss2/archive/index.xml',
+    articleLinkPattern: /sputniknews\.africa\/\d{8}\/[a-z0-9-]{15,}\.html$/i,
+    contentSelectors: ['.article__text', '.article__body', ...NEWS_SELECTORS],
+  },
 ].map((s) => ({ ...s, group: 'afrique' as const, category: 'afrique' }))
 
 /** Médias internationaux : rubrique « International ». */
@@ -140,6 +148,22 @@ const INTERNATIONAL_SOURCES: NewsSource[] = [
     articleLinkPattern: /\/international\/.+_A[A-Z]-\d{12}\.html$/,
     contentSelectors: NEWS_SELECTORS,
   },
+  {
+    name: 'TASS',
+    attribution: 'Selon l’agence russe TASS',
+    homepage: 'https://tass.com/',
+    rss: 'https://tass.com/rss/v2.xml',
+    articleLinkPattern: /tass\.com\/[a-z-]+\/\d{6,}$/i,
+    contentSelectors: ['.text-block', '.news__text', ...NEWS_SELECTORS],
+  },
+  {
+    name: 'IRNA',
+    attribution: 'Selon l’agence iranienne IRNA',
+    homepage: 'https://fr.irna.ir/',
+    rss: 'https://fr.irna.ir/rss',
+    articleLinkPattern: /irna\.ir\/news\/\d{6,}\/[^/]+$/i,
+    contentSelectors: ['.item-text', '.item-body', ...NEWS_SELECTORS],
+  },
 ].map((s) => ({ ...s, group: 'international' as const, category: 'international' }))
 
 NEWS_SOURCES.push(...AFRIQUE_SOURCES, ...INTERNATIONAL_SOURCES)
@@ -155,7 +179,7 @@ export const sourcesOf = (group: NewsGroup): NewsSource[] =>
 export const GROUP_LIMITS: Record<NewsGroup, { perSource: number; perRun: number }> = {
   senegal: { perSource: 3, perRun: 12 },
   afrique: { perSource: 2, perRun: 6 },
-  international: { perSource: 2, perRun: 4 },
+  international: { perSource: 2, perRun: 6 },
 }
 
 /** En-têtes d'un navigateur ordinaire (certains sites refusent les robots sans User-Agent). */
