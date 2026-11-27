@@ -25,6 +25,7 @@ import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ShareButtons as ShareButtons_d6bb43374fbbf4d1137bf03b3e7052d1 } from '../../../components/admin/ShareButtons'
 import { LiveComposer as LiveComposer_3a4b09b4aecc89000fdbdda9b983dda3 } from '../../../components/admin/LiveComposer'
+import { MediaSaveButton as MediaSaveButton_2631974ee4b40fa0b51420db6c391911 } from '../../../components/admin/MediaSaveButton'
 import { Icon as Icon_80ebcb12978a9db9a1c04af0af89c7ec } from '../../../components/admin/Graphics'
 import { Logo as Logo_80ebcb12978a9db9a1c04af0af89c7ec } from '../../../components/admin/Graphics'
 import { HeaderActions as HeaderActions_c9fcc4e841a7b22678cf4272fdcd73be } from '../../../components/admin/HeaderActions'
@@ -63,6 +64,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/components/admin/ShareButtons#ShareButtons": ShareButtons_d6bb43374fbbf4d1137bf03b3e7052d1,
   "/components/admin/LiveComposer#LiveComposer": LiveComposer_3a4b09b4aecc89000fdbdda9b983dda3,
+  "/components/admin/MediaSaveButton#MediaSaveButton": MediaSaveButton_2631974ee4b40fa0b51420db6c391911,
   "/components/admin/Graphics#Icon": Icon_80ebcb12978a9db9a1c04af0af89c7ec,
   "/components/admin/Graphics#Logo": Logo_80ebcb12978a9db9a1c04af0af89c7ec,
   "/components/admin/HeaderActions#HeaderActions": HeaderActions_c9fcc4e841a7b22678cf4272fdcd73be,
