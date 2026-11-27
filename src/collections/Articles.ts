@@ -5,6 +5,7 @@ import { VideoBlock } from '../blocks/VideoBlock'
 import { PasteMediaFeature } from '../components/admin/editor/PasteMediaFeature'
 
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
+import { foldForSearch, lexicalToText } from '../lib/lexicalText'
 import { publicArticlesWhere } from '../lib/publicWhere'
 
 import { slugField } from './slugField'
@@ -227,6 +228,24 @@ export const Articles: CollectionConfig = {
       type: 'relationship',
       relationTo: 'authors',
       admin: { position: 'sidebar' },
+    },
+    {
+      // Titre + chapô + texte de l'article, en minuscules et sans accents, recalculé à chaque
+      // enregistrement : sert à la recherche du site (PostgreSQL ne sait pas chercher
+      // directement dans le contenu Lexical, et « senegal » doit trouver « Sénégal »).
+      name: 'searchText',
+      type: 'textarea',
+      admin: { hidden: true },
+      hooks: {
+        beforeChange: [
+          ({ siblingData }) =>
+            foldForSearch(
+              [siblingData?.title, siblingData?.excerpt, lexicalToText(siblingData?.content)]
+                .filter(Boolean)
+                .join(' '),
+            ),
+        ],
+      },
     },
     slugField('title'),
     // ——— Provenance (articles préparés automatiquement par la rédaction IA) ———
