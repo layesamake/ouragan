@@ -63,14 +63,6 @@ export const NEWS_SOURCES: NewsSource[] = [
     contentSelectors: ['.article-content', '.content-article', '#article-content', 'article'],
   },
   {
-    name: 'Walf NET',
-    attribution: 'Selon Walf NET',
-    homepage: 'https://walf-groupe.com/',
-    rss: 'https://walf-groupe.com/feed/',
-    articleLinkPattern: WP_ARTICLE,
-    contentSelectors: WP_SELECTORS,
-  },
-  {
     name: 'SeneNews',
     attribution: 'D’après SeneNews',
     homepage: 'https://www.senenews.com/',
@@ -127,34 +119,10 @@ const AFRIQUE_SOURCES: NewsSource[] = [
     articleLinkPattern: /\/fr\/[a-z-]+\/\d{8}-[a-z0-9-]{15,}$/i,
     contentSelectors: NEWS_SELECTORS,
   },
-  {
-    name: 'Africanews',
-    attribution: 'D’après Africanews',
-    homepage: 'https://fr.africanews.com/',
-    rss: 'https://fr.africanews.com/feed/rss',
-    articleLinkPattern: /africanews\.com\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9-]{15,}\/?$/i,
-    contentSelectors: NEWS_SELECTORS,
-  },
-  {
-    name: 'France 24',
-    attribution: 'Selon France 24',
-    homepage: 'https://www.france24.com/fr/afrique/',
-    rss: 'https://www.france24.com/fr/afrique/rss',
-    articleLinkPattern: /\/fr\/[a-z-]+\/\d{8}-[a-z0-9-]{15,}$/i,
-    contentSelectors: NEWS_SELECTORS,
-  },
 ].map((s) => ({ ...s, group: 'afrique' as const, category: 'afrique' }))
 
 /** Médias internationaux : rubrique « International ». */
 const INTERNATIONAL_SOURCES: NewsSource[] = [
-  {
-    name: 'Le Monde',
-    attribution: 'Selon Le Monde',
-    homepage: 'https://www.lemonde.fr/international/',
-    rss: 'https://www.lemonde.fr/international/rss_full.xml',
-    articleLinkPattern: /\/article\/\d{4}\/\d{2}\/\d{2}\/[a-z0-9-]+_\d+_\d+\.html$/i,
-    contentSelectors: NEWS_SELECTORS,
-  },
   {
     name: 'La Presse',
     attribution: 'D’après La Presse',
